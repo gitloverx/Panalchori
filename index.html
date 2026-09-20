@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#e11d48">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>PAN AL CHORI - Sistema Cloud</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50:'#fff1f2',100:'#ffe4e6',600:'#e11d48',700:'#be123c',900:'#881337' }
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800 font-sans min-h-screen flex flex-col pb-20 select-none">
+
+    <!-- LOGIN -->
+    <div id="view-login" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-xs w-full shadow-2xl space-y-4 text-center border border-stone-200">
+            <div class="w-14 h-14 bg-rose-600 text-white rounded-2xl flex items-center justify-center text-xl mx-auto shadow-lg shadow-rose-600/30">
+                <i class="fa-solid fa-hotdog"></i>
+            </div>
+            <div>
+                <h2 class="font-black text-lg text-stone-900 tracking-tight">PAN AL CHORI</h2>
+                <p class="text-xs text-stone-400 mt-0.5">Ingresa la contraseña del sistema</p>
+            </div>
+            <div class="space-y-2">
+                <input type="password" id="login-password" placeholder="Contraseña (2026)" class="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-center text-sm font-bold tracking-widest focus:outline-none focus:border-rose-600 transition">
+                <button onclick="handleLogin()" class="w-full bg-stone-900 hover:bg-stone-800 text-white font-bold py-3 rounded-xl text-xs shadow-md active:scale-[0.98] transition">
+                    Entrar al Sistema
+                </button>
+            </div>
+            <p id="login-status" class="text-[10px] text-stone-400">Contraseña: <span class="font-bold text-rose-600">2026</span></p>
+        </div>
+    </div>
+
+    <!-- APP -->
+    <div id="main-app" class="hidden flex-1 flex flex-col">
+        <header class="bg-white border-b border-stone-200 sticky top-0 z-40 px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="bg-rose-600 text-white w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm shadow-sm">
+                    <i class="fa-solid fa-hotdog"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-xs tracking-tight text-stone-900 leading-none">PAN AL CHORI</h1>
+                    <span id="active-role-label" class="text-[10px] text-stone-400 font-semibold uppercase tracking-wider">Caja</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span id="sync-indicator" class="flex h-2 w-2 relative" title="Conectando...">
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-stone-400"></span>
+                </span>
+                <button onclick="logout()" class="text-stone-400 hover:text-rose-600 p-2 text-xs rounded-xl transition">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 max-w-md w-full mx-auto p-3 space-y-3">
+            <!-- CAJERO -->
+            <div id="view-cajero" class="space-y-3">
+                <div class="bg-white rounded-2xl p-2.5 shadow-xs border border-stone-200 flex gap-2 items-center">
+                    <i class="fa-solid fa-user text-stone-400 pl-2 text-xs"></i>
+                    <input type="text" id="customer-name" placeholder="Nombre cliente..." class="w-full bg-transparent text-sm focus:outline-none font-medium placeholder:text-stone-400">
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center px-1">
+                        <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Menú Rápido</span>
+                        <span class="text-[11px] text-rose-600 font-semibold">Perros $10k | Choripapa $13k</span>
+                    </div>
+                    <div id="menu-grid" class="grid grid-cols-1 gap-2"></div>
+                </div>
+                <div class="bg-white rounded-2xl p-3.5 shadow-sm border border-stone-200 space-y-3">
+                    <div class="flex justify-between items-center border-b border-stone-100 pb-2">
+                        <span class="font-bold text-xs text-stone-900 flex items-center gap-1.5 uppercase tracking-wide">
+                            <i class="fa-solid fa-receipt text-rose-600"></i> Pedido Actual
+                        </span>
+                        <button onclick="clearCart()" class="text-[11px] text-stone-400 hover:text-rose-600 font-medium">Vaciar</button>
+                    </div>
+                    <div id="cart-items" class="divide-y divide-stone-100 max-h-36 overflow-y-auto space-y-1 pr-1 text-xs">
+                        <p class="text-stone-400 text-xs py-2 text-center">Sin items en el pedido</p>
+                    </div>
+                    <div class="border-t border-stone-100 pt-2 flex justify-between items-center">
+                        <span class="text-[11px] text-stone-500 uppercase font-bold">Total:</span>
+                        <span id="cart-total" class="text-rose-600 font-black text-base">$0</span>
+                    </div>
+                    <button onclick="submitOrder()" id="btn-submit" class="w-full bg-stone-900 hover:bg-stone-800 text-white font-bold py-3 rounded-xl text-xs shadow-xs active:scale-[0.98] transition flex items-center justify-center gap-2 disabled:opacity-40">
+                        <i class="fa-solid fa-check text-xs"></i> Enviar a Cocina (Cloud)
+                    </button>
+                </div>
+                <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-stone-200 space-y-2">
+                    <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Últimos Pedidos en Vivo</span>
+                    <div id="cashier-orders-list" class="space-y-2 max-h-40 overflow-y-auto"></div>
+                </div>
+            </div>
+
+            <!-- COCINERO -->
+            <div id="view-cocinero" class="hidden space-y-3">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Cocina KDS (En Vivo)</span>
+                    <span id="kitchen-count" class="bg-amber-100 text-amber-800 text-[11px] px-2 py-0.5 rounded-full font-bold">0 pendientes</span>
+                </div>
+                <div id="kitchen-orders-list" class="space-y-2.5"></div>
+            </div>
+
+            <!-- ADMIN -->
+            <div id="view-admin" class="hidden space-y-3">
+                <div class="grid grid-cols-2 gap-2.5">
+                    <div class="bg-white p-3 rounded-2xl shadow-xs border border-stone-200">
+                        <span class="text-[10px] uppercase font-bold text-stone-400">Ventas Totales</span>
+                        <h3 id="stat-sales" class="text-base font-black text-stone-900 mt-1">$0</h3>
+                    </div>
+                    <div class="bg-white p-3 rounded-2xl shadow-xs border border-stone-200">
+                        <span class="text-[10px] uppercase font-bold text-stone-400">Total Pedidos</span>
+                        <h3 id="stat-orders" class="text-base font-black text-stone-900 mt-1">0</h3>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-stone-200 space-y-2">
+                    <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Inventario en la Nube</span>
+                    <div id="admin-inventory-list" class="space-y-2 max-h-52 overflow-y-auto"></div>
+                </div>
+                <button onclick="resetData()" class="w-full bg-white hover:bg-rose-50 text-stone-600 hover:text-rose-600 font-bold py-2.5 rounded-xl text-xs transition border border-stone-200">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Reiniciar Datos del Día
+                </button>
+            </div>
+        </main>
+
+        <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-stone-200 py-2 px-6 flex justify-around items-center z-40 max-w-md mx-auto">
+            <button onclick="switchRole('cajero')" id="nav-btn-cajero" class="flex flex-col items-center gap-1 text-rose-600 transition">
+                <i class="fa-solid fa-cash-register text-base"></i>
+                <span class="text-[10px] font-bold">Caja</span>
+            </button>
+            <button onclick="switchRole('cocinero')" id="nav-btn-cocinero" class="flex flex-col items-center gap-1 text-stone-400 hover:text-stone-700 transition">
+                <i class="fa-solid fa-fire-burner text-base"></i>
+                <span class="text-[10px] font-bold">Cocina</span>
+            </button>
+            <button onclick="switchRole('admin')" id="nav-btn-admin" class="flex flex-col items-center gap-1 text-stone-400 hover:text-stone-700 transition">
+                <i class="fa-solid fa-chart-pie text-base"></i>
+                <span class="text-[10px] font-bold">Admin</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- MODAL -->
+    <div id="custom-modal" class="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-5 max-w-xs w-full shadow-xl space-y-3 text-center border border-stone-100">
+            <div class="w-10 h-10 bg-stone-100 text-stone-900 rounded-full flex items-center justify-center text-sm mx-auto">
+                <i class="fa-solid fa-bell"></i>
+            </div>
+            <h3 id="modal-title" class="font-bold text-stone-900 text-sm">Aviso</h3>
+            <p id="modal-message" class="text-xs text-stone-500">Mensaje</p>
+            <button onclick="closeModal()" class="w-full bg-stone-900 text-white font-bold py-2.5 rounded-xl text-xs">Aceptar</button>
+        </div>
+    </div>
+
+    <!-- CONFIG FIREBASE (TUS CREDENCIALES) -->
+    <script>
+        window.FIREBASE_CONFIG = {
+            apiKey:            "AIzaSyDY1le6ntrHBlyQV6vuSzOuzg1DGS7Pye4",
+            authDomain:        "pan-al-chori.firebaseapp.com",
+            projectId:         "pan-al-chori",
+            storageBucket:     "pan-al-chori.firebasestorage.app",
+            messagingSenderId: "152473049532",
+            appId:             "1:152473049532:web:d581fe2647dca7b8bdb3b9"
+        };
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot }
+            from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const MENU_PASSWORD = "2026";
+
+        const menuItems = [
+            { id: 1, name: "CLÁSICO",      desc: "Chorizo santarrosano, pan artesanal, chimichurri.",  price: 10000, icon: "fa-solid fa-tie" },
+            { id: 2, name: "CARAMELIZADO", desc: "Chorizo santarrosano, pan, chimichurri, cebolla.",   price: 10000, icon: "fa-solid fa-pepper-hot" },
+            { id: 3, name: "GRATINADO",    desc: "Chorizo santarrosano, pan, chimichurri, queso.",     price: 10000, icon: "fa-solid fa-cheese" },
+            { id: 4, name: "MÉXICANO",     desc: "Chorizo santarrosano, pan, chimichurri, jalapeños.", price: 10000, icon: "fa-solid fa-hat-cowboy" },
+            { id: 5, name: "CHORIPAPA",    desc: "Papas fritas con mix de especias, chorizo, queso.",  price: 13000, icon: "fa-solid fa-bowl-food" }
+        ];
+
+        let db, auth;
+        let orders = [];
+        let inventory = [];
+        let cart = [];
+        let currentRole = 'cajero';
+        let firebaseReady = false;
+        let firstOrdersLoad = true;
+        let audioCtx = null;
+
+        window.handleLogin = async function () {
+            const pass = document.getElementById('login-password').value;
+            if (pass !== MENU_PASSWORD) { showAlert("Contraseña incorrecta. Usa: 2026", "Acceso Denegado"); return; }
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') await audioCtx.resume();
+            } catch (e) {}
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+            renderMenu(); updateCart();
+            initFirebaseAndListeners();
+        };
+
+        window.logout = function () {
+            document.getElementById('login-password').value = '';
+            document.getElementById('main-app').classList.add('hidden');
+            document.getElementById('view-login').classList.remove('hidden');
+        };
+
+        function setSyncStatus(state) {
+            const el = document.getElementById('sync-indicator');
+            const map = {
+                ok:      ['bg-emerald-500', 'animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75', 'Conectado'],
+                loading: ['bg-amber-400',   'animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75',   'Conectando...'],
+                error:   ['bg-rose-500',    'absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-40',                 'Sin conexión']
+            };
+            const [dot, ping, title] = map[state] || map.loading;
+            el.title = title;
+            el.innerHTML = `<span class="${ping}"></span><span class="relative inline-flex rounded-full h-2 w-2 ${dot}"></span>`;
+        }
+
+        async function initFirebaseAndListeners() {
+            const cfg = window.FIREBASE_CONFIG || {};
+            setSyncStatus('loading');
+            try {
+                const app = initializeApp(cfg);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                onAuthStateChanged(auth, (user) => { if (user) attachListeners(); });
+                await signInAnonymously(auth);
+            } catch (e) {
+                console.error("Firebase init error:", e);
+                setSyncStatus('error');
+                showAlert("No se pudo conectar. Revisa que activaste 'Anónimo' en Authentication.", "Error");
+            }
+        }
+
+        function attachListeners() {
+            firebaseReady = true;
+            onSnapshot(collection(db, 'orders'), (snapshot) => {
+                const prevPending = orders.filter(o => o.status === 'pendiente').length;
+                orders = snapshot.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
+                orders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                setSyncStatus('ok');
+                const nowPending = orders.filter(o => o.status === 'pendiente').length;
+                if (!firstOrdersLoad && nowPending > prevPending) playBeep();
+                firstOrdersLoad = false;
+                refreshCurrentView();
+            }, (error) => { console.error("Orders listener error:", error); setSyncStatus('error'); });
+
+            onSnapshot(collection(db, 'inventory'), async (snapshot) => {
+                if (snapshot.empty) { await initDefaultInventory(); return; }
+                inventory = snapshot.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
+                inventory.sort((a, b) => a.id - b.id);
+                refreshCurrentView();
+            }, (error) => { console.error("Inventory listener error:", error); });
+        }
+
+        async function initDefaultInventory() {
+            const defaultInv = [
+                { id: 1, name: "Chorizo Santarrosano", stock: 80, unit: "und"  },
+                { id: 2, name: "Pan Artesanal",        stock: 85, unit: "und"  },
+                { id: 3, name: "Chimichurri",          stock: 40, unit: "porc" },
+                { id: 4, name: "Queso Gratinado",      stock: 45, unit: "porc" }
+            ];
+            for (const item of defaultInv) {
+                await setDoc(doc(db, 'inventory', `item_${item.id}`), item);
+            }
+        }
+
+        function playBeep() {
+            try {
+                if (!audioCtx) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.type = 'sine'; osc.frequency.value = 880;
+                gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.45);
+            } catch (e) {}
+        }
+
+        window.switchRole = function (role) {
+            currentRole = role;
+            ['cajero','cocinero','admin'].forEach(r => {
+                document.getElementById(`view-${r}`).classList.add('hidden');
+                document.getElementById(`nav-btn-${r}`).className = "flex flex-col items-center gap-1 text-stone-400 hover:text-stone-700 transition";
+            });
+            document.getElementById(`view-${role}`).classList.remove('hidden');
+            document.getElementById(`nav-btn-${role}`).className = "flex flex-col items-center gap-1 text-rose-600 transition";
+            const labels = { cajero:'Caja', cocinero:'Cocina', admin:'Administración' };
+            document.getElementById('active-role-label').textContent = labels[role];
+            refreshCurrentView();
+        };
+
+        function refreshCurrentView() {
+            if (currentRole === 'cajero')   { renderMenu(); updateCart(); renderCashierOrders(); }
+            if (currentRole === 'cocinero') { updateKitchen(); }
+            if (currentRole === 'admin')    { updateAdmin(); }
+        }
+
+        function renderMenu() {
+            document.getElementById('menu-grid').innerHTML = menuItems.map(item => `
+                <div onclick="addToCart(${item.id})" class="bg-white p-2.5 rounded-2xl border border-stone-200 active:scale-[0.99] transition flex items-center justify-between cursor-pointer">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-9 h-9 rounded-xl bg-stone-100 text-stone-800 flex items-center justify-center font-bold text-xs">
+                            <i class="${item.icon}"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs text-stone-900">${item.name}</h4>
+                            <p class="text-[10px] text-stone-400 line-clamp-1">${item.desc}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-black text-xs text-rose-600">$${item.price.toLocaleString()}</span>
+                        <div class="text-[9px] text-stone-400 font-medium">+ Agregar</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.addToCart = function (id) {
+            const item = menuItems.find(m => m.id === id);
+            const existing = cart.find(c => c.id === id);
+            if (existing) existing.qty++;
+            else cart.push({ ...item, qty: 1 });
+            updateCart();
+        };
+
+        window.updateCartQty = function (id, delta) {
+            const item = cart.find(c => c.id === id);
+            if (item) { item.qty += delta; if (item.qty <= 0) cart = cart.filter(c => c.id !== id); }
+            updateCart();
+        };
+
+        window.clearCart = function () {
+            cart = [];
+            document.getElementById('customer-name').value = '';
+            updateCart();
+        };
+
+        function updateCart() {
+            const container = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-stone-400 text-xs py-2 text-center">Sin items en el pedido</p>`;
+                totalEl.textContent = '$0'; return;
+            }
+            let total = 0;
+            container.innerHTML = cart.map(item => {
+                total += item.price * item.qty;
+                return `
+                    <div class="flex justify-between items-center py-1">
+                        <span class="font-semibold text-xs text-stone-800">${item.name}</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="updateCartQty(${item.id}, -1)" class="w-5 h-5 bg-stone-100 rounded text-xs font-bold">-</button>
+                            <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
+                            <button onclick="updateCartQty(${item.id}, 1)" class="w-5 h-5 bg-stone-100 rounded text-xs font-bold">+</button>
+                        </div>
+                    </div>`;
+            }).join('');
+            totalEl.textContent = `$${total.toLocaleString()}`;
+        }
+
+        window.submitOrder = async function () {
+            if (!firebaseReady) { showAlert("Sincronizando con la nube, espera un segundo...", "Aviso"); return; }
+            const customer = document.getElementById('customer-name').value.trim() || 'Cliente';
+            if (cart.length === 0) { showAlert("Agrega al menos un producto."); return; }
+            const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const now = new Date();
+            const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            const newOrder = {
+                id: Math.floor(100 + Math.random()*900),
+                customer, items: [...cart], total,
+                status: 'pendiente', time, timestamp: Date.now()
+            };
+            const btn = document.getElementById('btn-submit');
+            btn.disabled = true;
+            try {
+                await addDoc(collection(db, 'orders'), newOrder);
+                clearCart();
+                showAlert("¡Pedido enviado a cocina en la nube!", "Listo");
+            } catch (e) {
+                console.error("Error submitting order:", e);
+                showAlert("Error al enviar. Revisa tu conexión.", "Error");
+            } finally { btn.disabled = false; }
+        };
+
+        function statusClass(s) {
+            if (s === 'pendiente')   return 'bg-amber-100 text-amber-800';
+            if (s === 'preparacion') return 'bg-blue-100 text-blue-800';
+            return 'bg-emerald-100 text-emerald-800';
+        }
+
+        function renderCashierOrders() {
+            const container = document.getElementById('cashier-orders-list');
+            container.innerHTML = orders.slice(0, 5).map(o => `
+                <div class="flex justify-between items-center bg-stone-50 p-2 rounded-xl border border-stone-100 text-xs">
+                    <div>
+                        <span class="font-bold text-stone-900">#${o.id} - ${o.customer}</span>
+                        <div class="text-[10px] text-stone-400">${(o.items||[]).map(i=>`${i.qty}x${i.name}`).join(', ')}</div>
+                    </div>
+                    <div class="text-right">
+                        <span class="font-bold text-rose-600">$${(o.total||0).toLocaleString()}</span>
+                        <div><span class="text-[9px] px-1.5 py-0.5 rounded font-bold ${statusClass(o.status)}">${o.status}</span></div>
+                    </div>
+                </div>
+            `).join('') || `<p class="text-stone-400 text-xs py-2 text-center">No hay pedidos recientes</p>`;
+        }
+
+        function updateKitchen() {
+            const container = document.getElementById('kitchen-orders-list');
+            const activos = orders.filter(o => o.status !== 'listo');
+            const listos  = orders.filter(o => o.status === 'listo').slice(0, 3);
+            document.getElementById('kitchen-count').textContent = `${activos.length} pendientes`;
+            const renderCard = (o) => `
+                <div class="bg-white p-3 rounded-2xl shadow-xs border ${o.status==='listo'?'border-emerald-200 opacity-70':'border-stone-200'} space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-xs text-stone-900">#${o.id} - ${o.customer}</span>
+                        <span class="text-[10px] text-stone-400">${o.time}</span>
+                    </div>
+                    <div class="bg-stone-50 p-2 rounded-xl text-xs space-y-1">
+                        ${(o.items||[]).map(i => `<div class="font-medium text-stone-800">• ${i.qty}x${i.name}</div>`).join('')}
+                    </div>
+                    <div class="flex justify-end gap-1.5 pt-1">
+                        ${o.status==='pendiente'   ? `<button onclick="setStatus('${o.firebaseId}','preparacion')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition">Cocinar</button>` : ''}
+                        ${o.status==='preparacion' ? `<button onclick="setStatus('${o.firebaseId}','listo')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition">Listo ✔</button>` : ''}
+                        ${o.status==='listo'       ? `<span class="text-xs font-bold text-emerald-600">Entregado</span>` : ''}
+                    </div>
+                </div>`;
+            container.innerHTML =
+                (activos.map(renderCard).join('') || `<p class="text-stone-400 text-xs py-2 text-center">No hay pedidos en cocina</p>`) +
+                (listos.length ? `<div class="pt-2 text-[10px] font-bold text-stone-400 uppercase tracking-wider">Últimos listos</div>` + listos.map(renderCard).join('') : '');
+        }
+
+        window.setStatus = async function (firebaseId, status) {
+            if (!firebaseReady) return;
+            try { await updateDoc(doc(db, 'orders', firebaseId), { status }); }
+            catch (e) { console.error(e); showAlert("No se pudo actualizar el pedido.", "Error"); }
+        };
+
+        function updateAdmin() {
+            const totalSales = orders.reduce((s, o) => s + (o.total || 0), 0);
+            document.getElementById('stat-sales').textContent = `$${totalSales.toLocaleString()}`;
+            document.getElementById('stat-orders').textContent = orders.length;
+            document.getElementById('admin-inventory-list').innerHTML = inventory.map(i => `
+                <div class="flex justify-between items-center bg-stone-50 p-2.5 rounded-xl text-xs border border-stone-100">
+                    <span class="font-semibold text-stone-800">${i.name}</span>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold ${i.stock<=10?'text-rose-600':'text-stone-900'}">${i.stock} ${i.unit}</span>
+                        <button onclick="restock('${i.firebaseId}', ${i.stock})" class="bg-stone-200 hover:bg-stone-300 px-2.5 py-1 rounded-lg text-[10px] font-bold transition">+20</button>
+                    </div>
+                </div>`).join('') || `<p class="text-stone-400 text-xs py-2 text-center">Cargando inventario...</p>`;
+        }
+
+        window.restock = async function (firebaseId, currentStock) {
+            if (!firebaseReady) return;
+            try { await updateDoc(doc(db, 'inventory', firebaseId), { stock: currentStock + 20 }); }
+            catch (e) { console.error(e); }
+        };
+
+        window.resetData = async function () {
+            if (!firebaseReady) return;
+            if (!confirm("¿Seguro que quieres borrar todos los pedidos del día?")) return;
+            try {
+                for (const o of orders) await deleteDoc(doc(db, 'orders', o.firebaseId));
+                for (const item of inventory) {
+                    await setDoc(doc(db, 'inventory', item.firebaseId), {
+                        id: item.id, name: item.name, unit: item.unit,
+                        stock: { 1:80, 2:85, 3:40, 4:45 }[item.id] ?? item.stock
+                    });
+                }
+                showAlert("Datos reiniciados en la nube con éxito.", "Éxito");
+            } catch (e) { console.error(e); showAlert("No se pudo reiniciar.", "Error"); }
+        };
+
+        window.showAlert = function (msg, title = "Aviso") {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = msg;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        };
+        window.closeModal = function () {
+            document.getElementById('custom-modal').classList.add('hidden');
+        };
+    </script>
+</body>
+</html>
