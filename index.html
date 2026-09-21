@@ -39,12 +39,12 @@
                 <p class="text-xs text-stone-400 mt-0.5">Ingresa la contraseña del sistema</p>
             </div>
             <div class="space-y-2">
-                <input type="password" id="login-password" placeholder="Contraseña (2026)" class="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-center text-sm font-bold tracking-widest focus:outline-none focus:border-rose-600 transition">
+                <input type="password" id="login-password" placeholder="Contraseña" class="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-center text-sm font-bold tracking-widest focus:outline-none focus:border-rose-600 transition">
                 <button onclick="handleLogin()" class="w-full bg-stone-900 hover:bg-stone-800 text-white font-bold py-3 rounded-xl text-xs shadow-md active:scale-[0.98] transition">
                     Entrar al Sistema
                 </button>
             </div>
-            <p id="login-status" class="text-[10px] text-stone-400">Contraseña: <span class="font-bold text-rose-600">2026</span></p>
+            <p id="login-status" class="text-[10px] text-stone-400">Solo personal autorizado</p>
         </div>
     </div>
 
@@ -130,6 +130,34 @@
                     </div>
                 </div>
 
+                <!-- CALENDARIO DE VENTAS -->
+                <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-stone-200 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Ventas por Día</span>
+                        <div class="flex items-center gap-1">
+                            <button onclick="changeCalendarMonth(-1)" class="w-7 h-7 bg-stone-100 hover:bg-stone-200 rounded-lg text-xs font-bold flex items-center justify-center">‹</button>
+                            <span id="calendar-month-label" class="text-[11px] font-bold text-stone-800 min-w-[92px] text-center">-</span>
+                            <button onclick="changeCalendarMonth(1)" class="w-7 h-7 bg-stone-100 hover:bg-stone-200 rounded-lg text-xs font-bold flex items-center justify-center">›</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-1 text-center">
+                        <span class="text-[9px] font-bold text-stone-400">Lu</span>
+                        <span class="text-[9px] font-bold text-stone-400">Ma</span>
+                        <span class="text-[9px] font-bold text-stone-400">Mi</span>
+                        <span class="text-[9px] font-bold text-stone-400">Ju</span>
+                        <span class="text-[9px] font-bold text-stone-400">Vi</span>
+                        <span class="text-[9px] font-bold text-stone-400">Sá</span>
+                        <span class="text-[9px] font-bold text-stone-400">Do</span>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+
+                    <div id="calendar-day-summary" class="hidden text-[11px] text-stone-600 bg-stone-50 rounded-xl px-3 py-2 border border-stone-100 flex justify-between items-center">
+                        <span id="calendar-day-summary-text">-</span>
+                        <span id="calendar-day-summary-total" class="font-black text-rose-600">$0</span>
+                    </div>
+                    <div id="calendar-day-detail" class="space-y-2 max-h-72 overflow-y-auto"></div>
+                </div>
+
                 <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-stone-200 space-y-2">
                     <div class="flex justify-between items-center">
                         <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Precios del Menú</span>
@@ -199,6 +227,47 @@
         </div>
     </div>
 
+    <!-- MODAL EDITAR VENTA -->
+    <div id="edit-sale-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 hidden overflow-y-auto">
+        <div class="min-h-full flex items-start justify-center p-3 py-6">
+            <div class="bg-white rounded-2xl p-4 max-w-md w-full shadow-xl space-y-3 border border-stone-100">
+                <div class="flex justify-between items-center border-b border-stone-100 pb-2">
+                    <div>
+                        <h3 class="font-bold text-stone-900 text-sm">Editar Venta <span id="edit-sale-id" class="text-rose-600"></span></h3>
+                        <p id="edit-sale-time" class="text-[10px] text-stone-400"></p>
+                    </div>
+                    <button onclick="closeEditSale()" class="text-stone-400 hover:text-rose-600 p-1 text-sm">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Cliente</label>
+                    <input type="text" id="edit-sale-customer" class="w-full bg-stone-100 border border-stone-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:border-rose-600 transition">
+                </div>
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Productos</label>
+                        <button onclick="addSaleItem()" class="text-[10px] font-bold text-rose-600 hover:text-rose-700">
+                            <i class="fa-solid fa-plus"></i> Añadir producto
+                        </button>
+                    </div>
+                    <div id="edit-sale-items" class="space-y-2 max-h-[45vh] overflow-y-auto pr-1"></div>
+                </div>
+                <div class="border-t border-stone-100 pt-2 flex justify-between items-center">
+                    <span class="text-[11px] text-stone-500 uppercase font-bold">Total:</span>
+                    <span id="edit-sale-total" class="text-rose-600 font-black text-lg">$0</span>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button onclick="deleteSale()" class="bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold py-2.5 px-3 rounded-xl text-xs" title="Eliminar venta">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button onclick="closeEditSale()" class="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold py-2.5 rounded-xl text-xs">Cancelar</button>
+                    <button onclick="saveSaleEdit()" class="flex-1 bg-stone-900 hover:bg-stone-800 text-white font-bold py-2.5 rounded-xl text-xs">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- CONFIG FIREBASE -->
     <script>
         window.FIREBASE_CONFIG = {
@@ -223,492 +292,4 @@
             { id: 1, name: "CLÁSICO",         desc: "Chorizo santarrosano, pan artesanal, chimichurri.",  price: 10000, icon: "fa-solid fa-tie" },
             { id: 2, name: "CARAMELIZADO",    desc: "Chorizo santarrosano, pan, chimichurri, cebolla.",   price: 10000, icon: "fa-solid fa-pepper-hot" },
             { id: 3, name: "GRATINADO",       desc: "Chorizo santarrosano, pan, chimichurri, queso.",     price: 10000, icon: "fa-solid fa-cheese" },
-            { id: 4, name: "MÉXICANO",        desc: "Chorizo santarrosano, pan, chimichurri, jalapeños.", price: 10000, icon: "fa-solid fa-hat-cowboy" },
-            { id: 5, name: "CHORIPAPA",       desc: "Papas fritas con mix de especias, chorizo, queso.",  price: 13000, icon: "fa-solid fa-bowl-food" },
-            { id: 6, name: "COMBO CHORI PAN", desc: "Choripán + papas francesas.",                        price: 14000, icon: "fa-solid fa-utensils" }
-        ];
-
-        let db, auth;
-        let menuItems = [];
-        let orders = [];
-        let inventory = [];
-        let cart = [];
-        let currentRole = 'cajero';
-        let firebaseReady = false;
-        let menuReady = false;
-        let firstOrdersLoad = true;
-        let audioCtx = null;
-        let editingItemId = null;
-
-        /* ---------------- TIEMPO ---------------- */
-        function formatElapsed(ms) {
-            const total = Math.max(0, Math.floor(ms / 1000));
-            const m = Math.floor(total / 60);
-            const s = total % 60;
-            if (m === 0) return `${s}s`;
-            if (m >= 60) {
-                const h = Math.floor(m / 60);
-                return `${h}h ${m % 60}m`;
-            }
-            return `${m}m ${String(s).padStart(2, '0')}s`;
-        }
-
-        function urgencyClass(ms) {
-            const min = ms / 60000;
-            if (min < 5)  return 'bg-emerald-100 text-emerald-700 border-emerald-200';
-            if (min < 10) return 'bg-amber-100 text-amber-800 border-amber-200';
-            if (min < 15) return 'bg-orange-100 text-orange-800 border-orange-200';
-            return 'bg-rose-100 text-rose-700 border-rose-300 urgent-pulse';
-        }
-
-        function timerBadgeClass(ms) {
-            return `text-[10px] font-bold px-2 py-0.5 rounded-md border ${urgencyClass(ms)}`;
-        }
-
-        /* ---------------- LOGIN ---------------- */
-        window.handleLogin = async function () {
-            const pass = document.getElementById('login-password').value;
-            if (pass !== MENU_PASSWORD) { showAlert("Contraseña incorrecta. Usa: 2026", "Acceso Denegado"); return; }
-            try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') await audioCtx.resume();
-            } catch (e) {}
-            document.getElementById('view-login').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            initFirebaseAndListeners();
-        };
-
-        window.logout = function () {
-            document.getElementById('login-password').value = '';
-            document.getElementById('main-app').classList.add('hidden');
-            document.getElementById('view-login').classList.remove('hidden');
-        };
-
-        /* ---------------- FIREBASE ---------------- */
-        function setSyncStatus(state) {
-            const el = document.getElementById('sync-indicator');
-            const map = {
-                ok:      ['bg-emerald-500', 'animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75', 'Conectado'],
-                loading: ['bg-amber-400',   'animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75',   'Conectando...'],
-                error:   ['bg-rose-500',    'absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-40',                 'Sin conexión']
-            };
-            const [dot, ping, title] = map[state] || map.loading;
-            el.title = title;
-            el.innerHTML = `<span class="${ping}"></span><span class="relative inline-flex rounded-full h-2 w-2 ${dot}"></span>`;
-        }
-
-        async function initFirebaseAndListeners() {
-            setSyncStatus('loading');
-            try {
-                const app = initializeApp(window.FIREBASE_CONFIG);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                onAuthStateChanged(auth, (user) => { if (user) attachListeners(); });
-                await signInAnonymously(auth);
-            } catch (e) {
-                console.error("Firebase init error:", e);
-                setSyncStatus('error');
-                showAlert("No se pudo conectar. Revisa que activaste 'Anónimo' en Authentication.", "Error");
-            }
-        }
-
-        function attachListeners() {
-            firebaseReady = true;
-
-            onSnapshot(collection(db, 'menu'), async (snapshot) => {
-                if (snapshot.empty) { await initDefaultMenu(); return; }
-                menuItems = snapshot.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-                menuItems.sort((a, b) => a.id - b.id);
-                menuReady = true;
-                setSyncStatus('ok');
-                refreshCurrentView();
-            }, (err) => { console.error("Menu listener error:", err); });
-
-            onSnapshot(collection(db, 'orders'), (snapshot) => {
-                const prevPending = orders.filter(o => o.status === 'pendiente').length;
-                orders = snapshot.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-                orders.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-                const nowPending = orders.filter(o => o.status === 'pendiente').length;
-                if (!firstOrdersLoad && nowPending > prevPending) playBeep();
-                firstOrdersLoad = false;
-                refreshCurrentView();
-            }, (err) => { console.error("Orders listener error:", err); setSyncStatus('error'); });
-
-            onSnapshot(collection(db, 'inventory'), async (snapshot) => {
-                if (snapshot.empty) { await initDefaultInventory(); return; }
-                inventory = snapshot.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
-                inventory.sort((a, b) => a.id - b.id);
-                refreshCurrentView();
-            }, (err) => { console.error("Inventory listener error:", err); });
-        }
-
-        async function initDefaultMenu() {
-            for (const item of DEFAULT_MENU) {
-                await setDoc(doc(db, 'menu', `item_${item.id}`), item);
-            }
-        }
-
-        async function initDefaultInventory() {
-            const defaultInv = [
-                { id: 1, name: "Chorizo Santarrosano", stock: 80, unit: "und"  },
-                { id: 2, name: "Pan Artesanal",        stock: 85, unit: "und"  },
-                { id: 3, name: "Chimichurri",          stock: 40, unit: "porc" },
-                { id: 4, name: "Queso Gratinado",      stock: 45, unit: "porc" },
-                { id: 5, name: "Papas Francesas",      stock: 60, unit: "porc" }
-            ];
-            for (const item of defaultInv) {
-                await setDoc(doc(db, 'inventory', `item_${item.id}`), item);
-            }
-        }
-
-        function playBeep() {
-            try {
-                if (!audioCtx) return;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.type = 'sine'; osc.frequency.value = 880;
-                gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.45);
-            } catch (e) {}
-        }
-
-        /* ---------------- NAVEGACIÓN ---------------- */
-        window.switchRole = function (role) {
-            currentRole = role;
-            ['cajero','cocinero','admin'].forEach(r => {
-                document.getElementById(`view-${r}`).classList.add('hidden');
-                document.getElementById(`nav-btn-${r}`).className = "flex flex-col items-center gap-1 text-stone-400 hover:text-stone-700 transition";
-            });
-            document.getElementById(`view-${role}`).classList.remove('hidden');
-            document.getElementById(`nav-btn-${role}`).className = "flex flex-col items-center gap-1 text-rose-600 transition";
-            const labels = { cajero:'Caja', cocinero:'Cocina', admin:'Administración' };
-            document.getElementById('active-role-label').textContent = labels[role];
-            refreshCurrentView();
-        };
-
-        function refreshCurrentView() {
-            if (currentRole === 'cajero')   { renderMenu(); updateCart(); renderCashierOrders(); }
-            if (currentRole === 'cocinero') { updateKitchen(); }
-            if (currentRole === 'admin')    { updateAdmin(); }
-        }
-
-        /* ---------------- RELOJ EN VIVO ---------------- */
-        // Actualiza SOLO el texto de los temporizadores cada segundo (sin re-renderizar todo)
-        setInterval(() => {
-            if (currentRole !== 'cocinero' && currentRole !== 'cajero') return;
-            const now = Date.now();
-            document.querySelectorAll('[data-timer]').forEach(el => {
-                const fbId = el.getAttribute('data-timer');
-                const order = orders.find(o => o.firebaseId === fbId);
-                if (!order || !order.timestamp) return;
-                const elapsed = now - order.timestamp;
-                el.textContent = formatElapsed(elapsed);
-                el.className = timerBadgeClass(elapsed);
-            });
-        }, 1000);
-
-        /* ---------------- CAJERO ---------------- */
-        function renderMenu() {
-            const grid = document.getElementById('menu-grid');
-            const summary = document.getElementById('menu-prices-summary');
-
-            if (!menuReady) {
-                grid.innerHTML = `<p class="text-stone-400 text-xs py-3 text-center">Cargando menú...</p>`;
-                summary.textContent = '...';
-                return;
-            }
-
-            const perros = menuItems.find(i => i.id === 1);
-            const choripapa = menuItems.find(i => i.id === 5);
-            const combo = menuItems.find(i => i.id === 6);
-            summary.textContent = `Perros $${(perros?.price || 0).toLocaleString()} | Chori $${(choripapa?.price || 0).toLocaleString()} | Combo $${(combo?.price || 0).toLocaleString()}`;
-
-            grid.innerHTML = menuItems.map(item => `
-                <div onclick="addToCart(${item.id})" class="bg-white p-2.5 rounded-2xl border border-stone-200 active:scale-[0.99] transition flex items-center justify-between cursor-pointer">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-9 h-9 rounded-xl bg-stone-100 text-stone-800 flex items-center justify-center font-bold text-xs">
-                            <i class="${item.icon}"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-xs text-stone-900">${item.name}</h4>
-                            <p class="text-[10px] text-stone-400 line-clamp-1">${item.desc}</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <span class="font-black text-xs text-rose-600">$${item.price.toLocaleString()}</span>
-                        <div class="text-[9px] text-stone-400 font-medium">+ Agregar</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        window.addToCart = function (id) {
-            const item = menuItems.find(m => m.id === id);
-            if (!item) return;
-            const existing = cart.find(c => c.id === id);
-            if (existing) existing.qty++;
-            else cart.push({ id: item.id, name: item.name, price: item.price, qty: 1 });
-            updateCart();
-        };
-
-        window.updateCartQty = function (id, delta) {
-            const item = cart.find(c => c.id === id);
-            if (item) { item.qty += delta; if (item.qty <= 0) cart = cart.filter(c => c.id !== id); }
-            updateCart();
-        };
-
-        window.clearCart = function () {
-            cart = [];
-            document.getElementById('customer-name').value = '';
-            updateCart();
-        };
-
-        function updateCart() {
-            const container = document.getElementById('cart-items');
-            const totalEl = document.getElementById('cart-total');
-            if (cart.length === 0) {
-                container.innerHTML = `<p class="text-stone-400 text-xs py-2 text-center">Sin items en el pedido</p>`;
-                totalEl.textContent = '$0'; return;
-            }
-            let total = 0;
-            container.innerHTML = cart.map(item => {
-                total += item.price * item.qty;
-                return `
-                    <div class="flex justify-between items-center py-1">
-                        <span class="font-semibold text-xs text-stone-800">${item.name}</span>
-                        <div class="flex items-center gap-2">
-                            <button onclick="updateCartQty(${item.id}, -1)" class="w-5 h-5 bg-stone-100 rounded text-xs font-bold">-</button>
-                            <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
-                            <button onclick="updateCartQty(${item.id}, 1)" class="w-5 h-5 bg-stone-100 rounded text-xs font-bold">+</button>
-                        </div>
-                    </div>`;
-            }).join('');
-            totalEl.textContent = `$${total.toLocaleString()}`;
-        }
-
-        window.submitOrder = async function () {
-            if (!firebaseReady || !menuReady) { showAlert("Sincronizando, espera un segundo...", "Aviso"); return; }
-            const customer = document.getElementById('customer-name').value.trim() || 'Cliente';
-            if (cart.length === 0) { showAlert("Agrega al menos un producto."); return; }
-            const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
-            const now = new Date();
-            const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-            const newOrder = {
-                id: Math.floor(100 + Math.random()*900),
-                customer, items: [...cart], total,
-                status: 'pendiente', time, timestamp: Date.now()
-            };
-            const btn = document.getElementById('btn-submit');
-            btn.disabled = true;
-            try {
-                await addDoc(collection(db, 'orders'), newOrder);
-                clearCart();
-                showAlert("¡Pedido enviado a cocina en la nube!", "Listo");
-            } catch (e) {
-                console.error("Error submitting order:", e);
-                showAlert("Error al enviar. Revisa tu conexión.", "Error");
-            } finally { btn.disabled = false; }
-        };
-
-        function statusClass(s) {
-            if (s === 'pendiente')   return 'bg-amber-100 text-amber-800';
-            if (s === 'preparacion') return 'bg-blue-100 text-blue-800';
-            return 'bg-emerald-100 text-emerald-800';
-        }
-
-        function renderCashierOrders() {
-            const container = document.getElementById('cashier-orders-list');
-            const now = Date.now();
-            container.innerHTML = orders.slice(0, 5).map(o => {
-                const elapsed = o.timestamp ? now - o.timestamp : 0;
-                const timerHtml = o.status !== 'listo'
-                    ? `<span data-timer="${o.firebaseId}" class="${timerBadgeClass(elapsed)}">${formatElapsed(elapsed)}</span>`
-                    : '';
-                return `
-                <div class="flex justify-between items-center bg-stone-50 p-2 rounded-xl border border-stone-100 text-xs">
-                    <div class="min-w-0 flex-1">
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                            <span class="font-bold text-stone-900">#${o.id} - ${o.customer}</span>
-                            ${timerHtml}
-                        </div>
-                        <div class="text-[10px] text-stone-400 truncate">${(o.items||[]).map(i=>`${i.qty}x${i.name}`).join(', ')}</div>
-                    </div>
-                    <div class="text-right shrink-0 ml-2">
-                        <span class="font-bold text-rose-600">$${(o.total||0).toLocaleString()}</span>
-                        <div><span class="text-[9px] px-1.5 py-0.5 rounded font-bold ${statusClass(o.status)}">${o.status}</span></div>
-                    </div>
-                </div>`;
-            }).join('') || `<p class="text-stone-400 text-xs py-2 text-center">No hay pedidos recientes</p>`;
-        }
-
-        /* ---------------- COCINA ---------------- */
-        function updateKitchen() {
-            const container = document.getElementById('kitchen-orders-list');
-            // Pedidos activos ordenados por antigüedad (más viejo arriba)
-            const activos = orders
-                .filter(o => o.status !== 'listo')
-                .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-            const listos = orders
-                .filter(o => o.status === 'listo')
-                .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
-                .slice(0, 3);
-
-            document.getElementById('kitchen-count').textContent = `${activos.length} pendientes`;
-
-            const now = Date.now();
-            const renderCard = (o) => {
-                const elapsed = o.timestamp ? now - o.timestamp : 0;
-                const min = elapsed / 60000;
-                const cardBorder = o.status === 'listo'
-                    ? 'border-emerald-200 opacity-70'
-                    : min >= 15 ? 'border-rose-300'
-                    : min >= 10 ? 'border-orange-300'
-                    : min >= 5  ? 'border-amber-300'
-                    : 'border-stone-200';
-                return `
-                <div class="bg-white p-3 rounded-2xl shadow-xs border-2 ${cardBorder} space-y-2">
-                    <div class="flex justify-between items-center gap-2">
-                        <span class="font-bold text-xs text-stone-900 truncate">#${o.id} - ${o.customer}</span>
-                        ${o.status !== 'listo'
-                            ? `<span data-timer="${o.firebaseId}" class="${timerBadgeClass(elapsed)}">${formatElapsed(elapsed)}</span>`
-                            : `<span class="text-[10px] text-stone-400">${o.time}</span>`}
-                    </div>
-                    <div class="bg-stone-50 p-2 rounded-xl text-xs space-y-1">
-                        ${(o.items||[]).map(i => `<div class="font-medium text-stone-800">• ${i.qty}x${i.name}</div>`).join('')}
-                    </div>
-                    <div class="flex justify-between items-center pt-1">
-                        <span class="text-[10px] text-stone-400">Pedido a las ${o.time}</span>
-                        <div class="flex gap-1.5">
-                            ${o.status==='pendiente'   ? `<button onclick="setStatus('${o.firebaseId}','preparacion')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition">Cocinar</button>` : ''}
-                            ${o.status==='preparacion' ? `<button onclick="setStatus('${o.firebaseId}','listo')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition">Listo ✔</button>` : ''}
-                            ${o.status==='listo'       ? `<span class="text-xs font-bold text-emerald-600">Entregado</span>` : ''}
-                        </div>
-                    </div>
-                </div>`;
-            };
-
-            container.innerHTML =
-                (activos.map(renderCard).join('') || `<p class="text-stone-400 text-xs py-2 text-center">No hay pedidos en cocina</p>`) +
-                (listos.length ? `<div class="pt-2 text-[10px] font-bold text-stone-400 uppercase tracking-wider">Últimos listos</div>` + listos.map(renderCard).join('') : '');
-        }
-
-        window.setStatus = async function (firebaseId, status) {
-            if (!firebaseReady) return;
-            try { await updateDoc(doc(db, 'orders', firebaseId), { status }); }
-            catch (e) { console.error(e); showAlert("No se pudo actualizar el pedido.", "Error"); }
-        };
-
-        /* ---------------- ADMIN ---------------- */
-        function updateAdmin() {
-            const totalSales = orders.reduce((s, o) => s + (o.total || 0), 0);
-            document.getElementById('stat-sales').textContent = `$${totalSales.toLocaleString()}`;
-            document.getElementById('stat-orders').textContent = orders.length;
-
-            const menuList = document.getElementById('admin-menu-list');
-            if (!menuReady) {
-                menuList.innerHTML = `<p class="text-stone-400 text-xs py-2 text-center">Cargando menú...</p>`;
-            } else {
-                menuList.innerHTML = menuItems.map(i => `
-                    <div class="flex justify-between items-center bg-stone-50 p-2.5 rounded-xl text-xs border border-stone-100">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <div class="w-7 h-7 rounded-lg bg-stone-200 text-stone-700 flex items-center justify-center text-[11px] shrink-0">
-                                <i class="${i.icon}"></i>
-                            </div>
-                            <span class="font-semibold text-stone-800 truncate">${i.name}</span>
-                        </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <span class="font-bold text-rose-600">$${i.price.toLocaleString()}</span>
-                            <button onclick="openPriceModal(${i.id})" class="bg-stone-200 hover:bg-stone-300 px-2.5 py-1 rounded-lg text-[10px] font-bold transition">
-                                <i class="fa-solid fa-pen"></i> Editar
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            document.getElementById('admin-inventory-list').innerHTML = inventory.map(i => `
-                <div class="flex justify-between items-center bg-stone-50 p-2.5 rounded-xl text-xs border border-stone-100">
-                    <span class="font-semibold text-stone-800">${i.name}</span>
-                    <div class="flex items-center gap-2">
-                        <span class="font-bold ${i.stock<=10?'text-rose-600':'text-stone-900'}">${i.stock} ${i.unit}</span>
-                        <button onclick="restock('${i.firebaseId}', ${i.stock})" class="bg-stone-200 hover:bg-stone-300 px-2.5 py-1 rounded-lg text-[10px] font-bold transition">+20</button>
-                    </div>
-                </div>`).join('') || `<p class="text-stone-400 text-xs py-2 text-center">Cargando inventario...</p>`;
-        }
-
-        window.restock = async function (firebaseId, currentStock) {
-            if (!firebaseReady) return;
-            try { await updateDoc(doc(db, 'inventory', firebaseId), { stock: currentStock + 20 }); }
-            catch (e) { console.error(e); }
-        };
-
-        /* ---------------- EDITAR PRECIO ---------------- */
-        window.openPriceModal = function (id) {
-            const item = menuItems.find(m => m.id === id);
-            if (!item) return;
-            editingItemId = id;
-            document.getElementById('price-modal-name').textContent = item.name;
-            const input = document.getElementById('price-modal-input');
-            input.value = item.price;
-            updatePricePreview();
-            input.oninput = updatePricePreview;
-            document.getElementById('price-modal').classList.remove('hidden');
-            setTimeout(() => input.focus(), 150);
-        };
-
-        function updatePricePreview() {
-            const val = parseInt(document.getElementById('price-modal-input').value) || 0;
-            document.getElementById('price-modal-preview').textContent = `$${val.toLocaleString()}`;
-        }
-
-        window.closePriceModal = function () {
-            document.getElementById('price-modal').classList.add('hidden');
-            editingItemId = null;
-        };
-
-        window.savePrice = async function () {
-            if (editingItemId == null) return;
-            const newPrice = parseInt(document.getElementById('price-modal-input').value);
-            if (isNaN(newPrice) || newPrice <= 0) { showAlert("Ingresa un precio válido."); return; }
-            const item = menuItems.find(m => m.id === editingItemId);
-            if (!item) return;
-            try {
-                await updateDoc(doc(db, 'menu', item.firebaseId), { price: newPrice });
-                closePriceModal();
-                showAlert(`Precio de ${item.name} actualizado a $${newPrice.toLocaleString()}.`, "Actualizado");
-            } catch (e) {
-                console.error("Error updating price:", e);
-                showAlert("No se pudo guardar el precio.", "Error");
-            }
-        };
-
-        /* ---------------- RESET ---------------- */
-        window.resetData = async function () {
-            if (!firebaseReady) return;
-            if (!confirm("¿Borrar todos los pedidos del día y reiniciar inventario? (Los precios NO se tocan)")) return;
-            try {
-                for (const o of orders) await deleteDoc(doc(db, 'orders', o.firebaseId));
-                for (const item of inventory) {
-                    const defaultStock = { 1:80, 2:85, 3:40, 4:45, 5:60 }[item.id] ?? item.stock;
-                    await setDoc(doc(db, 'inventory', item.firebaseId), {
-                        id: item.id, name: item.name, unit: item.unit, stock: defaultStock
-                    });
-                }
-                showAlert("Datos reiniciados en la nube con éxito.", "Éxito");
-            } catch (e) { console.error(e); showAlert("No se pudo reiniciar.", "Error"); }
-        };
-
-        /* ---------------- MODAL ---------------- */
-        window.showAlert = function (msg, title = "Aviso") {
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-message').textContent = msg;
-            document.getElementById('custom-modal').classList.remove('hidden');
-        };
-        window.closeModal = function () {
-            document.getElementById('custom-modal').classList.add('hidden');
-        };
-    </script>
-</body>
-</html>
+            { id: 4, name: "MÉXICANO",        desc: "Chorizo sa
