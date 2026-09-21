@@ -119,6 +119,23 @@
                 <div id="kitchen-orders-list" class="space-y-2.5"></div>
             </div>
 
+            <!-- INVENTARIO (nueva sección) -->
+            <div id="view-inventario" class="hidden space-y-3">
+                <div class="flex justify-between items-center px-1">
+                    <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Inventario</span>
+                    <button onclick="openIngredientModal()" class="bg-stone-900 hover:bg-stone-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg">
+                        <i class="fa-solid fa-plus"></i> Nuevo ingrediente
+                    </button>
+                </div>
+
+                <div id="inventory-list" class="space-y-2"></div>
+
+                <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-stone-200 space-y-2 mt-2">
+                    <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Consumo de Ingredientes (hoy)</span>
+                    <div id="ingredient-usage-stats" class="space-y-2"></div>
+                </div>
+            </div>
+
             <!-- ADMIN -->
             <div id="view-admin" class="hidden space-y-3">
                 <div class="grid grid-cols-2 gap-2.5">
@@ -160,26 +177,41 @@
                     <div id="calendar-day-detail" class="space-y-2 max-h-72 overflow-y-auto"></div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-stone-200 space-y-2">
-                    <div class="flex justify-between items-center">
-                        <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Precios del Menú</span>
-                        <span class="text-[10px] text-stone-400">Sincronizado</span>
+                <!-- ESTADÍSTICAS -->
+                <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-stone-200 space-y-3">
+                    <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Estadísticas de Ventas</span>
+                    <div>
+                        <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-1">
+                            <i class="fa-solid fa-arrow-trend-up"></i> Más vendidos
+                        </p>
+                        <div id="stats-top-products" class="space-y-1"></div>
                     </div>
-                    <div id="admin-menu-list" class="space-y-2 max-h-72 overflow-y-auto"></div>
+                    <div>
+                        <p class="text-[10px] font-bold text-rose-600 uppercase tracking-wider mb-1">
+                            <i class="fa-solid fa-arrow-trend-down"></i> Menos vendidos
+                        </p>
+                        <div id="stats-bottom-products" class="space-y-1"></div>
+                    </div>
                 </div>
 
+                <!-- MENÚ / PRODUCTOS -->
                 <div class="bg-white rounded-2xl p-3.5 shadow-xs border border-stone-200 space-y-2">
-                    <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Inventario en la Nube</span>
-                    <div id="admin-inventory-list" class="space-y-2 max-h-52 overflow-y-auto"></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Productos del Menú</span>
+                        <button onclick="openProductModal()" class="bg-stone-900 hover:bg-stone-800 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg">
+                            <i class="fa-solid fa-plus"></i> Nuevo producto
+                        </button>
+                    </div>
+                    <div id="admin-menu-list" class="space-y-2 max-h-96 overflow-y-auto"></div>
                 </div>
 
                 <button onclick="resetData()" class="w-full bg-white hover:bg-rose-50 text-stone-600 hover:text-rose-600 font-bold py-2.5 rounded-xl text-xs transition border border-stone-200">
-                    <i class="fa-solid fa-rotate-right mr-1"></i> Reiniciar Datos del Día
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Reiniciar Pedidos del Día
                 </button>
             </div>
         </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-stone-200 py-2 px-6 flex justify-around items-center z-40 max-w-md mx-auto">
+        <nav class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-stone-200 py-2 px-3 flex justify-around items-center z-40 max-w-md mx-auto">
             <button onclick="switchRole('cajero')" id="nav-btn-cajero" class="flex flex-col items-center gap-1 text-rose-600 transition">
                 <i class="fa-solid fa-cash-register text-base"></i>
                 <span class="text-[10px] font-bold">Caja</span>
@@ -187,6 +219,10 @@
             <button onclick="switchRole('cocinero')" id="nav-btn-cocinero" class="flex flex-col items-center gap-1 text-stone-400 hover:text-stone-700 transition">
                 <i class="fa-solid fa-fire-burner text-base"></i>
                 <span class="text-[10px] font-bold">Cocina</span>
+            </button>
+            <button onclick="switchRole('inventario')" id="nav-btn-inventario" class="flex flex-col items-center gap-1 text-stone-400 hover:text-stone-700 transition">
+                <i class="fa-solid fa-boxes-stacked text-base"></i>
+                <span class="text-[10px] font-bold">Inventario</span>
             </button>
             <button onclick="switchRole('admin')" id="nav-btn-admin" class="flex flex-col items-center gap-1 text-stone-400 hover:text-stone-700 transition">
                 <i class="fa-solid fa-chart-pie text-base"></i>
@@ -196,7 +232,7 @@
     </div>
 
     <!-- MODAL GENÉRICO -->
-    <div id="custom-modal" class="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div id="custom-modal" class="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-[60] hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-5 max-w-xs w-full shadow-xl space-y-3 text-center border border-stone-100">
             <div class="w-10 h-10 bg-stone-100 text-stone-900 rounded-full flex items-center justify-center text-sm mx-auto">
                 <i class="fa-solid fa-bell"></i>
@@ -204,28 +240,6 @@
             <h3 id="modal-title" class="font-bold text-stone-900 text-sm">Aviso</h3>
             <p id="modal-message" class="text-xs text-stone-500">Mensaje</p>
             <button onclick="closeModal()" class="w-full bg-stone-900 text-white font-bold py-2.5 rounded-xl text-xs">Aceptar</button>
-        </div>
-    </div>
-
-    <!-- MODAL EDITAR PRECIO -->
-    <div id="price-modal" class="fixed inset-0 bg-stone-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-5 max-w-xs w-full shadow-xl space-y-3 border border-stone-100">
-            <div class="text-center">
-                <div class="w-10 h-10 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-sm mx-auto">
-                    <i class="fa-solid fa-tag"></i>
-                </div>
-                <h3 class="font-bold text-stone-900 text-sm mt-2">Editar Precio</h3>
-                <p id="price-modal-name" class="text-xs text-stone-400 mt-0.5">Producto</p>
-            </div>
-            <div>
-                <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Precio (sin puntos)</label>
-                <input type="number" id="price-modal-input" inputmode="numeric" class="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-3 text-center text-lg font-black focus:outline-none focus:border-rose-600 transition">
-                <p class="text-[10px] text-stone-400 mt-1 text-center">Vista previa: <span id="price-modal-preview" class="font-bold text-rose-600">$0</span></p>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="closePriceModal()" class="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold py-2.5 rounded-xl text-xs">Cancelar</button>
-                <button onclick="savePrice()" class="flex-1 bg-stone-900 hover:bg-stone-800 text-white font-bold py-2.5 rounded-xl text-xs">Guardar</button>
-            </div>
         </div>
     </div>
 
@@ -270,6 +284,110 @@
         </div>
     </div>
 
+    <!-- MODAL INGREDIENTE (crear/editar) -->
+    <div id="ingredient-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 hidden overflow-y-auto">
+        <div class="min-h-full flex items-start justify-center p-3 py-6">
+            <div class="bg-white rounded-2xl p-4 max-w-md w-full shadow-xl space-y-3 border border-stone-100">
+                <div class="flex justify-between items-center border-b border-stone-100 pb-2">
+                    <h3 id="ingredient-modal-title" class="font-bold text-stone-900 text-sm">Nuevo Ingrediente</h3>
+                    <button onclick="closeIngredientModal()" class="text-stone-400 hover:text-rose-600 p-1 text-sm">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Nombre</label>
+                    <input type="text" id="ingredient-modal-name" placeholder="Ej: Chorizo Santarrosano" class="w-full bg-stone-100 border border-stone-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:border-rose-600 transition">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Cantidad</label>
+                        <input type="number" id="ingredient-modal-stock" inputmode="numeric" value="0" class="w-full bg-stone-100 border border-stone-200 rounded-xl px-3 py-2 text-sm font-bold text-center focus:outline-none focus:border-rose-600 transition">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Unidad</label>
+                        <select id="ingredient-modal-unit" class="w-full bg-stone-100 border border-stone-200 rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:border-rose-600 transition">
+                            <option value="und">unidades (und)</option>
+                            <option value="porc">porciones (porc)</option>
+                            <option value="kg">kilogramos (kg)</option>
+                            <option value="g">gramos (g)</option>
+                            <option value="L">litros (L)</option>
+                            <option value="ml">mililitros (ml)</option>
+                            <option value="paq">paquetes (paq)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button id="ingredient-modal-delete" onclick="deleteIngredientFromModal()" class="hidden bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold py-2.5 px-3 rounded-xl text-xs">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button onclick="closeIngredientModal()" class="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold py-2.5 rounded-xl text-xs">Cancelar</button>
+                    <button onclick="saveIngredient()" class="flex-1 bg-stone-900 hover:bg-stone-800 text-white font-bold py-2.5 rounded-xl text-xs">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PRODUCTO (crear/editar) -->
+    <div id="product-modal" class="fixed inset-0 bg-stone-900/60 backdrop-blur-sm z-50 hidden overflow-y-auto">
+        <div class="min-h-full flex items-start justify-center p-3 py-6">
+            <div class="bg-white rounded-2xl p-4 max-w-md w-full shadow-xl space-y-3 border border-stone-100">
+                <div class="flex justify-between items-center border-b border-stone-100 pb-2">
+                    <h3 id="product-modal-title" class="font-bold text-stone-900 text-sm">Nuevo Producto</h3>
+                    <button onclick="closeProductModal()" class="text-stone-400 hover:text-rose-600 p-1 text-sm">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Nombre</label>
+                    <input type="text" id="product-modal-name" placeholder="Ej: ESPECIAL" class="w-full bg-stone-100 border border-stone-200 rounded-xl px-3 py-2 text-sm font-bold uppercase focus:outline-none focus:border-rose-600 transition">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Descripción corta</label>
+                    <input type="text" id="product-modal-desc" placeholder="Ej: Chorizo + queso + tocino" class="w-full bg-stone-100 border border-stone-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-rose-600 transition">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Precio</label>
+                        <input type="number" id="product-modal-price" inputmode="numeric" value="10000" class="w-full bg-stone-100 border border-stone-200 rounded-xl px-3 py-2 text-sm font-bold text-center focus:outline-none focus:border-rose-600 transition">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Icono</label>
+                        <select id="product-modal-icon" class="w-full bg-stone-100 border border-stone-200 rounded-xl px-2 py-2 text-sm font-medium focus:outline-none focus:border-rose-600 transition">
+                            <option value="fa-solid fa-hotdog">🌭 Perro</option>
+                            <option value="fa-solid fa-utensils">🍽️ Combo</option>
+                            <option value="fa-solid fa-bowl-food">🥣 Tazón</option>
+                            <option value="fa-solid fa-tie">🎩 Clásico</option>
+                            <option value="fa-solid fa-pepper-hot">🌶️ Picante</option>
+                            <option value="fa-solid fa-cheese">🧀 Queso</option>
+                            <option value="fa-solid fa-hat-cowboy">🤠 Mexicano</option>
+                            <option value="fa-solid fa-burger">🍔 Hamburguesa</option>
+                            <option value="fa-solid fa-pizza-slice">🍕 Pizza</option>
+                            <option value="fa-solid fa-mug-hot">☕ Bebida caliente</option>
+                            <option value="fa-solid fa-glass-water">🥤 Bebida</option>
+                            <option value="fa-solid fa-ice-cream">🍦 Helado</option>
+                            <option value="fa-solid fa-cookie">🍪 Galleta</option>
+                            <option value="fa-solid fa-drumstick-bite">🍗 Pollo</option>
+                            <option value="fa-solid fa-fish">🐟 Pescado</option>
+                            <option value="fa-solid fa-carrot">🥕 Verdura</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Receta (ingredientes que usa)</label>
+                    <p class="text-[10px] text-stone-400 mb-1">Escribe la cantidad que usa este producto. Deja 0 si no lo usa.</p>
+                    <div id="product-modal-recipe" class="space-y-1.5 bg-stone-50 rounded-xl p-2 border border-stone-100 max-h-52 overflow-y-auto"></div>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button id="product-modal-delete" onclick="deleteProductFromModal()" class="hidden bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold py-2.5 px-3 rounded-xl text-xs">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    <button onclick="closeProductModal()" class="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold py-2.5 rounded-xl text-xs">Cancelar</button>
+                    <button onclick="saveProduct()" class="flex-1 bg-stone-900 hover:bg-stone-800 text-white font-bold py-2.5 rounded-xl text-xs">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- CONFIG FIREBASE -->
     <script>
         window.FIREBASE_CONFIG = {
@@ -285,18 +403,33 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot }
+        import { getFirestore, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, increment }
             from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const MENU_PASSWORD = "2026";
 
+        // Menú por defecto con RECETA
         const DEFAULT_MENU = [
-            { id: 1, name: "CLÁSICO",         desc: "Chorizo santarrosano, pan artesanal, chimichurri.",  price: 10000, icon: "fa-solid fa-tie" },
-            { id: 2, name: "CARAMELIZADO",    desc: "Chorizo santarrosano, pan, chimichurri, cebolla.",   price: 10000, icon: "fa-solid fa-pepper-hot" },
-            { id: 3, name: "GRATINADO",       desc: "Chorizo santarrosano, pan, chimichurri, queso.",     price: 10000, icon: "fa-solid fa-cheese" },
-            { id: 4, name: "MÉXICANO",        desc: "Chorizo santarrosano, pan, chimichurri, jalapeños.", price: 10000, icon: "fa-solid fa-hat-cowboy" },
-            { id: 5, name: "CHORIPAPA",       desc: "Papas fritas con mix de especias, chorizo, queso.",  price: 13000, icon: "fa-solid fa-bowl-food" },
-            { id: 6, name: "COMBO CHORI PAN", desc: "Choripán + papas francesas.",                        price: 14000, icon: "fa-solid fa-utensils" }
+            { id: 1, name: "CLÁSICO",         desc: "Chorizo santarrosano, pan artesanal, chimichurri.",  price: 10000, icon: "fa-solid fa-tie",
+              recipe: [{ingredientId:1, qty:1}, {ingredientId:2, qty:1}, {ingredientId:3, qty:1}] },
+            { id: 2, name: "CARAMELIZADO",    desc: "Chorizo santarrosano, pan, chimichurri, cebolla.",   price: 10000, icon: "fa-solid fa-pepper-hot",
+              recipe: [{ingredientId:1, qty:1}, {ingredientId:2, qty:1}, {ingredientId:3, qty:1}] },
+            { id: 3, name: "GRATINADO",       desc: "Chorizo santarrosano, pan, chimichurri, queso.",     price: 10000, icon: "fa-solid fa-cheese",
+              recipe: [{ingredientId:1, qty:1}, {ingredientId:2, qty:1}, {ingredientId:3, qty:1}, {ingredientId:4, qty:1}] },
+            { id: 4, name: "MÉXICANO",        desc: "Chorizo santarrosano, pan, chimichurri, jalapeños.", price: 10000, icon: "fa-solid fa-hat-cowboy",
+              recipe: [{ingredientId:1, qty:1}, {ingredientId:2, qty:1}, {ingredientId:3, qty:1}] },
+            { id: 5, name: "CHORIPAPA",       desc: "Papas fritas con mix de especias, chorizo, queso.",  price: 13000, icon: "fa-solid fa-bowl-food",
+              recipe: [{ingredientId:1, qty:1}, {ingredientId:3, qty:1}, {ingredientId:4, qty:1}, {ingredientId:5, qty:1}] },
+            { id: 6, name: "COMBO CHORI PAN", desc: "Choripán + papas francesas.",                        price: 14000, icon: "fa-solid fa-utensils",
+              recipe: [{ingredientId:1, qty:1}, {ingredientId:2, qty:1}, {ingredientId:3, qty:1}, {ingredientId:5, qty:1}] }
+        ];
+
+        const DEFAULT_INVENTORY = [
+            { id: 1, name: "Chorizo Santarrosano", stock: 80, unit: "und"  },
+            { id: 2, name: "Pan Artesanal",        stock: 85, unit: "und"  },
+            { id: 3, name: "Chimichurri",          stock: 40, unit: "porc" },
+            { id: 4, name: "Queso Gratinado",      stock: 45, unit: "porc" },
+            { id: 5, name: "Papas Francesas",      stock: 60, unit: "porc" }
         ];
 
         const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -309,6 +442,7 @@
         let currentRole = 'cajero';
         let firebaseReady = false;
         let menuReady = false;
+        let inventoryReady = false;
         let firstOrdersLoad = true;
         let audioCtx = null;
         let editingItemId = null;
@@ -318,7 +452,14 @@
         let selectedSaleDate = null;
         let editingSale = null;
 
-        /* ---------------- HELPERS DE FECHA ---------------- */
+        // Estado modal ingrediente
+        let editingIngredientFbId = null;
+
+        // Estado modal producto
+        let editingProductId = null;
+        let editingProductRecipe = []; // [{ingredientId, qty}]
+
+        /* ---------------- HELPERS ---------------- */
         function dateKey(d) {
             return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         }
@@ -331,6 +472,9 @@
             if (n >= 1000)    return Math.round(n/1000) + 'k';
             return String(n);
         }
+        function getIngredientById(id) {
+            return inventory.find(i => i.id === id);
+        }
 
         /* ---------------- TIEMPO ---------------- */
         function formatElapsed(ms) {
@@ -338,10 +482,7 @@
             const m = Math.floor(total / 60);
             const s = total % 60;
             if (m === 0) return `${s}s`;
-            if (m >= 60) {
-                const h = Math.floor(m / 60);
-                return `${h}h ${m % 60}m`;
-            }
+            if (m >= 60) { const h = Math.floor(m / 60); return `${h}h ${m % 60}m`; }
             return `${m}m ${String(s).padStart(2,'0')}s`;
         }
         function urgencyClass(ms) {
@@ -358,12 +499,8 @@
         /* ---------------- LOGIN ---------------- */
         window.handleLogin = async function () {
             const input = document.getElementById('login-password');
-            // Limpia espacios, saltos de línea y caracteres invisibles
             const pass = (input.value || '').replace(/\s+/g, '').trim();
-            if (pass !== MENU_PASSWORD) {
-                showAlert("Contraseña incorrecta", "Acceso Denegado");
-                return;
-            }
+            if (pass !== MENU_PASSWORD) { showAlert("Contraseña incorrecta", "Acceso Denegado"); return; }
             try {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') await audioCtx.resume();
@@ -372,7 +509,6 @@
             document.getElementById('main-app').classList.remove('hidden');
             initFirebaseAndListeners();
         };
-
         window.logout = function () {
             document.getElementById('login-password').value = '';
             document.getElementById('main-app').classList.add('hidden');
@@ -433,6 +569,7 @@
                 if (snapshot.empty) { await initDefaultInventory(); return; }
                 inventory = snapshot.docs.map(d => ({ firebaseId: d.id, ...d.data() }));
                 inventory.sort((a, b) => a.id - b.id);
+                inventoryReady = true;
                 refreshCurrentView();
             }, (err) => { console.error("Inventory listener error:", err); });
         }
@@ -442,16 +579,8 @@
                 await setDoc(doc(db, 'menu', `item_${item.id}`), item);
             }
         }
-
         async function initDefaultInventory() {
-            const defaultInv = [
-                { id: 1, name: "Chorizo Santarrosano", stock: 80, unit: "und"  },
-                { id: 2, name: "Pan Artesanal",        stock: 85, unit: "und"  },
-                { id: 3, name: "Chimichurri",          stock: 40, unit: "porc" },
-                { id: 4, name: "Queso Gratinado",      stock: 45, unit: "porc" },
-                { id: 5, name: "Papas Francesas",      stock: 60, unit: "porc" }
-            ];
-            for (const item of defaultInv) {
+            for (const item of DEFAULT_INVENTORY) {
                 await setDoc(doc(db, 'inventory', `item_${item.id}`), item);
             }
         }
@@ -472,21 +601,22 @@
         /* ---------------- NAVEGACIÓN ---------------- */
         window.switchRole = function (role) {
             currentRole = role;
-            ['cajero','cocinero','admin'].forEach(r => {
+            ['cajero','cocinero','inventario','admin'].forEach(r => {
                 document.getElementById(`view-${r}`).classList.add('hidden');
                 document.getElementById(`nav-btn-${r}`).className = "flex flex-col items-center gap-1 text-stone-400 hover:text-stone-700 transition";
             });
             document.getElementById(`view-${role}`).classList.remove('hidden');
             document.getElementById(`nav-btn-${role}`).className = "flex flex-col items-center gap-1 text-rose-600 transition";
-            const labels = { cajero:'Caja', cocinero:'Cocina', admin:'Administración' };
+            const labels = { cajero:'Caja', cocinero:'Cocina', inventario:'Inventario', admin:'Administración' };
             document.getElementById('active-role-label').textContent = labels[role];
             refreshCurrentView();
         };
 
         function refreshCurrentView() {
-            if (currentRole === 'cajero')   { renderMenu(); updateCart(); renderCashierOrders(); }
-            if (currentRole === 'cocinero') { updateKitchen(); }
-            if (currentRole === 'admin')    { updateAdmin(); }
+            if (currentRole === 'cajero')     { renderMenu(); updateCart(); renderCashierOrders(); }
+            if (currentRole === 'cocinero')   { updateKitchen(); }
+            if (currentRole === 'inventario') { renderInventorySection(); }
+            if (currentRole === 'admin')      { updateAdmin(); }
         }
 
         /* ---------------- RELOJ EN VIVO ---------------- */
@@ -514,10 +644,14 @@
                 return;
             }
 
-            const perros = menuItems.find(i => i.id === 1);
-            const choripapa = menuItems.find(i => i.id === 5);
-            const combo = menuItems.find(i => i.id === 6);
-            summary.textContent = `Perros $${(perros?.price || 0).toLocaleString()} | Chori $${(choripapa?.price || 0).toLocaleString()} | Combo $${(combo?.price || 0).toLocaleString()}`;
+            const perros = menuItems.find(i => i.name && i.name.includes('CLÁSICO'));
+            const choripapa = menuItems.find(i => i.name && i.name.includes('CHORIPAPA'));
+            const combo = menuItems.find(i => i.name && i.name.includes('COMBO'));
+            const parts = [];
+            if (perros) parts.push(`Perros $${perros.price.toLocaleString()}`);
+            if (choripapa) parts.push(`Chori $${choripapa.price.toLocaleString()}`);
+            if (combo) parts.push(`Combo $${combo.price.toLocaleString()}`);
+            summary.textContent = parts.join(' | ') || '—';
 
             grid.innerHTML = menuItems.map(item => `
                 <div onclick="addToCart(${item.id})" class="bg-white p-2.5 rounded-2xl border border-stone-200 active:scale-[0.99] transition flex items-center justify-between cursor-pointer">
@@ -527,7 +661,7 @@
                         </div>
                         <div>
                             <h4 class="font-bold text-xs text-stone-900">${item.name}</h4>
-                            <p class="text-[10px] text-stone-400 line-clamp-1">${item.desc}</p>
+                            <p class="text-[10px] text-stone-400 line-clamp-1">${item.desc || ''}</p>
                         </div>
                     </div>
                     <div class="text-right">
@@ -546,19 +680,16 @@
             else cart.push({ id: item.id, name: item.name, price: item.price, qty: 1 });
             updateCart();
         };
-
         window.updateCartQty = function (id, delta) {
             const item = cart.find(c => c.id === id);
             if (item) { item.qty += delta; if (item.qty <= 0) cart = cart.filter(c => c.id !== id); }
             updateCart();
         };
-
         window.clearCart = function () {
             cart = [];
             document.getElementById('customer-name').value = '';
             updateCart();
         };
-
         function updateCart() {
             const container = document.getElementById('cart-items');
             const totalEl = document.getElementById('cart-total');
@@ -582,8 +713,30 @@
             totalEl.textContent = `$${total.toLocaleString()}`;
         }
 
+        // Aplica receta: suma (signo=+1) o resta (signo=-1) ingredientes
+        async function applyRecipe(items, sign) {
+            const updates = {};
+            for (const it of items) {
+                const product = menuItems.find(m => m.id === it.id);
+                if (!product || !Array.isArray(product.recipe)) continue;
+                for (const r of product.recipe) {
+                    if (!r.ingredientId || !r.qty) continue;
+                    const ing = getIngredientById(r.ingredientId);
+                    if (!ing) continue;
+                    const key = ing.firebaseId;
+                    const delta = sign * r.qty * it.qty;
+                    updates[key] = (updates[key] || 0) + delta;
+                }
+            }
+            for (const fbId in updates) {
+                try {
+                    await updateDoc(doc(db, 'inventory', fbId), { stock: increment(updates[fbId]) });
+                } catch (e) { console.error("Error actualizando inventario:", e); }
+            }
+        }
+
         window.submitOrder = async function () {
-            if (!firebaseReady || !menuReady) { showAlert("Sincronizando, espera un segundo...", "Aviso"); return; }
+            if (!firebaseReady || !menuReady || !inventoryReady) { showAlert("Sincronizando, espera un segundo...", "Aviso"); return; }
             const customer = document.getElementById('customer-name').value.trim() || 'Cliente';
             if (cart.length === 0) { showAlert("Agrega al menos un producto."); return; }
             const total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
@@ -598,8 +751,9 @@
             btn.disabled = true;
             try {
                 await addDoc(collection(db, 'orders'), newOrder);
+                await applyRecipe(newOrder.items, -1); // descuenta inventario
                 clearCart();
-                showAlert("¡Pedido enviado a cocina en la nube!", "Listo");
+                showAlert("¡Pedido enviado e inventario descontado!", "Listo");
             } catch (e) {
                 console.error("Error submitting order:", e);
                 showAlert("Error al enviar. Revisa tu conexión.", "Error");
@@ -649,7 +803,6 @@
                 .slice(0, 3);
 
             document.getElementById('kitchen-count').textContent = `${activos.length} pendientes`;
-
             const now = Date.now();
             const renderCard = (o) => {
                 const elapsed = o.timestamp ? now - o.timestamp : 0;
@@ -681,7 +834,6 @@
                     </div>
                 </div>`;
             };
-
             container.innerHTML =
                 (activos.map(renderCard).join('') || `<p class="text-stone-400 text-xs py-2 text-center">No hay pedidos en cocina</p>`) +
                 (listos.length ? `<div class="pt-2 text-[10px] font-bold text-stone-400 uppercase tracking-wider">Últimos listos</div>` + listos.map(renderCard).join('') : '');
@@ -693,6 +845,146 @@
             catch (e) { console.error(e); showAlert("No se pudo actualizar el pedido.", "Error"); }
         };
 
+        /* ---------------- INVENTARIO SECTION ---------------- */
+        function renderInventorySection() {
+            const list = document.getElementById('inventory-list');
+            if (!inventoryReady) {
+                list.innerHTML = `<p class="text-stone-400 text-xs py-3 text-center">Cargando inventario...</p>`;
+                return;
+            }
+            if (inventory.length === 0) {
+                list.innerHTML = `<p class="text-stone-400 text-xs py-3 text-center">No hay ingredientes. Toca "Nuevo ingrediente".</p>`;
+                return;
+            }
+            list.innerHTML = inventory.map(i => {
+                const low = i.stock <= 10;
+                return `
+                <div class="bg-white rounded-2xl p-3 shadow-xs border border-stone-200">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-9 h-9 rounded-xl bg-stone-100 flex items-center justify-center">
+                                <i class="fa-solid fa-box text-stone-700 text-xs"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="font-bold text-xs text-stone-900 truncate">${i.name}</h4>
+                                <p class="text-[10px] text-stone-400">Stock: <span class="font-bold ${low?'text-rose-600':'text-stone-700'}">${i.stock} ${i.unit}</span></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button onclick="adjustStock('${i.firebaseId}', -10)" class="w-8 h-8 bg-stone-100 hover:bg-stone-200 rounded-lg text-[11px] font-bold">-10</button>
+                            <button onclick="adjustStock('${i.firebaseId}', -1)"  class="w-8 h-8 bg-stone-100 hover:bg-stone-200 rounded-lg text-xs font-bold">-1</button>
+                            <button onclick="adjustStock('${i.firebaseId}', 1)"   class="w-8 h-8 bg-stone-100 hover:bg-stone-200 rounded-lg text-xs font-bold">+1</button>
+                            <button onclick="adjustStock('${i.firebaseId}', 10)"  class="w-8 h-8 bg-stone-100 hover:bg-stone-200 rounded-lg text-[11px] font-bold">+10</button>
+                            <button onclick="openIngredientModal('${i.firebaseId}')" class="w-8 h-8 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg text-xs">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+
+            // Estadísticas de uso (basadas en recetas y ventas de hoy)
+            const todayOrders = ordersOfDate(todayKey());
+            const usage = {};
+            inventory.forEach(i => usage[i.id] = 0);
+            todayOrders.forEach(o => {
+                (o.items || []).forEach(it => {
+                    const product = menuItems.find(m => m.id === it.id);
+                    if (!product || !Array.isArray(product.recipe)) return;
+                    product.recipe.forEach(r => {
+                        if (!r.ingredientId || !r.qty) return;
+                        usage[r.ingredientId] = (usage[r.ingredientId] || 0) + (r.qty * it.qty);
+                    });
+                });
+            });
+            const usageArr = inventory.map(i => ({ name: i.name, unit: i.unit, qty: usage[i.id] || 0 }))
+                .sort((a,b) => b.qty - a.qty);
+
+            const stats = document.getElementById('ingredient-usage-stats');
+            stats.innerHTML = usageArr.map(u => `
+                <div class="flex justify-between items-center bg-stone-50 p-2 rounded-lg text-xs border border-stone-100">
+                    <span class="font-semibold text-stone-700 truncate">${u.name}</span>
+                    <span class="font-bold text-stone-900">${u.qty} ${u.unit}</span>
+                </div>`).join('') || `<p class="text-stone-400 text-xs py-2 text-center">Sin datos aún.</p>`;
+        }
+
+        window.adjustStock = async function (firebaseId, delta) {
+            if (!firebaseReady) return;
+            try {
+                await updateDoc(doc(db, 'inventory', firebaseId), { stock: increment(delta) });
+            } catch (e) { console.error("Error ajustando stock:", e); }
+        };
+
+        /* ---------------- MODAL INGREDIENTE ---------------- */
+        window.openIngredientModal = function (firebaseId) {
+            const modal = document.getElementById('ingredient-modal');
+            const titleEl = document.getElementById('ingredient-modal-title');
+            const nameEl = document.getElementById('ingredient-modal-name');
+            const stockEl = document.getElementById('ingredient-modal-stock');
+            const unitEl = document.getElementById('ingredient-modal-unit');
+            const delBtn = document.getElementById('ingredient-modal-delete');
+
+            if (firebaseId) {
+                const ing = inventory.find(i => i.firebaseId === firebaseId);
+                if (!ing) return;
+                editingIngredientFbId = firebaseId;
+                titleEl.textContent = 'Editar Ingrediente';
+                nameEl.value = ing.name;
+                stockEl.value = ing.stock;
+                unitEl.value = ing.unit;
+                delBtn.classList.remove('hidden');
+            } else {
+                editingIngredientFbId = null;
+                titleEl.textContent = 'Nuevo Ingrediente';
+                nameEl.value = '';
+                stockEl.value = 0;
+                unitEl.value = 'und';
+                delBtn.classList.add('hidden');
+            }
+            modal.classList.remove('hidden');
+            setTimeout(() => nameEl.focus(), 150);
+        };
+
+        window.closeIngredientModal = function () {
+            document.getElementById('ingredient-modal').classList.add('hidden');
+            editingIngredientFbId = null;
+        };
+
+        window.saveIngredient = async function () {
+            if (!firebaseReady) return;
+            const name = document.getElementById('ingredient-modal-name').value.trim();
+            const stock = parseInt(document.getElementById('ingredient-modal-stock').value) || 0;
+            const unit = document.getElementById('ingredient-modal-unit').value;
+            if (!name) { showAlert("Escribe un nombre."); return; }
+            try {
+                if (editingIngredientFbId) {
+                    await updateDoc(doc(db, 'inventory', editingIngredientFbId), { name, stock, unit });
+                } else {
+                    // Generar nuevo id
+                    const maxId = inventory.reduce((m, i) => Math.max(m, i.id || 0), 0);
+                    const newId = maxId + 1;
+                    await setDoc(doc(db, 'inventory', `item_${newId}_${Date.now()}`), { id: newId, name, stock, unit });
+                }
+                closeIngredientModal();
+                showAlert("Ingrediente guardado.", "Listo");
+            } catch (e) {
+                console.error("Error guardando ingrediente:", e);
+                showAlert("No se pudo guardar.", "Error");
+            }
+        };
+
+        window.deleteIngredientFromModal = async function () {
+            if (!editingIngredientFbId) return;
+            if (!confirm("¿Eliminar este ingrediente? También se quitará de las recetas.")) return;
+            try {
+                await deleteDoc(doc(db, 'inventory', editingIngredientFbId));
+                closeIngredientModal();
+                showAlert("Ingrediente eliminado.", "Listo");
+            } catch (e) {
+                console.error(e); showAlert("No se pudo eliminar.", "Error");
+            }
+        };
+
         /* ---------------- ADMIN ---------------- */
         function updateAdmin() {
             const totalSales = orders.reduce((s, o) => s + (o.total || 0), 0);
@@ -700,38 +992,194 @@
             document.getElementById('stat-orders').textContent = orders.length;
 
             renderSalesCalendar();
+            renderProductStats();
+            renderAdminMenu();
+        }
 
+        function renderAdminMenu() {
             const menuList = document.getElementById('admin-menu-list');
             if (!menuReady) {
                 menuList.innerHTML = `<p class="text-stone-400 text-xs py-2 text-center">Cargando menú...</p>`;
-            } else {
-                menuList.innerHTML = menuItems.map(i => `
-                    <div class="flex justify-between items-center bg-stone-50 p-2.5 rounded-xl text-xs border border-stone-100">
+                return;
+            }
+            menuList.innerHTML = menuItems.map(i => {
+                const recipeText = Array.isArray(i.recipe) && i.recipe.length
+                    ? i.recipe.map(r => {
+                        const ing = getIngredientById(r.ingredientId);
+                        return ing ? `${r.qty} ${ing.unit} ${ing.name}` : null;
+                    }).filter(Boolean).join(' · ')
+                    : 'Sin receta';
+                return `
+                <div class="bg-stone-50 p-2.5 rounded-xl text-xs border border-stone-100">
+                    <div class="flex justify-between items-center gap-2">
                         <div class="flex items-center gap-2 min-w-0">
                             <div class="w-7 h-7 rounded-lg bg-stone-200 text-stone-700 flex items-center justify-center text-[11px] shrink-0">
                                 <i class="${i.icon}"></i>
                             </div>
-                            <span class="font-semibold text-stone-800 truncate">${i.name}</span>
+                            <div class="min-w-0">
+                                <p class="font-bold text-stone-900 truncate">${i.name}</p>
+                                <p class="text-[10px] text-stone-400 truncate">${i.desc || ''}</p>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
+                        <div class="flex items-center gap-1 shrink-0">
                             <span class="font-bold text-rose-600">$${i.price.toLocaleString()}</span>
-                            <button onclick="openPriceModal(${i.id})" class="bg-stone-200 hover:bg-stone-300 px-2.5 py-1 rounded-lg text-[10px] font-bold transition">
-                                <i class="fa-solid fa-pen"></i> Editar
+                            <button onclick="openProductModal(${i.id})" class="bg-stone-200 hover:bg-stone-300 px-2 py-1 rounded-lg text-[10px] font-bold">
+                                <i class="fa-solid fa-pen"></i>
                             </button>
                         </div>
                     </div>
-                `).join('');
-            }
-
-            document.getElementById('admin-inventory-list').innerHTML = inventory.map(i => `
-                <div class="flex justify-between items-center bg-stone-50 p-2.5 rounded-xl text-xs border border-stone-100">
-                    <span class="font-semibold text-stone-800">${i.name}</span>
-                    <div class="flex items-center gap-2">
-                        <span class="font-bold ${i.stock<=10?'text-rose-600':'text-stone-900'}">${i.stock} ${i.unit}</span>
-                        <button onclick="restock('${i.firebaseId}', ${i.stock})" class="bg-stone-200 hover:bg-stone-300 px-2.5 py-1 rounded-lg text-[10px] font-bold transition">+20</button>
-                    </div>
-                </div>`).join('') || `<p class="text-stone-400 text-xs py-2 text-center">Cargando inventario...</p>`;
+                    <p class="text-[10px] text-stone-500 mt-1.5 leading-snug">📋 ${recipeText}</p>
+                </div>`;
+            }).join('');
         }
+
+        function renderProductStats() {
+            // Contar unidades vendidas por producto
+            const counts = {};
+            menuItems.forEach(m => counts[m.id] = { name: m.name, qty: 0 });
+            orders.forEach(o => {
+                (o.items || []).forEach(it => {
+                    if (counts[it.id]) counts[it.id].qty += it.qty;
+                    else counts[it.id] = { name: it.name, qty: it.qty };
+                });
+            });
+            const arr = Object.values(counts).filter(x => x.qty > 0).sort((a,b) => b.qty - a.qty);
+            const top = arr.slice(0, 3);
+            const bottom = arr.slice(-3).reverse();
+
+            const topEl = document.getElementById('stats-top-products');
+            const botEl = document.getElementById('stats-bottom-products');
+
+            topEl.innerHTML = top.length ? top.map((p, i) => `
+                <div class="flex justify-between items-center bg-emerald-50 p-2 rounded-lg text-xs border border-emerald-100">
+                    <span class="font-semibold text-emerald-800">${i+1}. ${p.name}</span>
+                    <span class="font-bold text-emerald-700">${p.qty} und</span>
+                </div>`).join('') : `<p class="text-stone-400 text-xs py-1 text-center">Sin ventas aún.</p>`;
+
+            botEl.innerHTML = bottom.length ? bottom.map((p, i) => `
+                <div class="flex justify-between items-center bg-rose-50 p-2 rounded-lg text-xs border border-rose-100">
+                    <span class="font-semibold text-rose-800">${i+1}. ${p.name}</span>
+                    <span class="font-bold text-rose-700">${p.qty} und</span>
+                </div>`).join('') : `<p class="text-stone-400 text-xs py-1 text-center">Sin ventas aún.</p>`;
+        }
+
+        /* ---------------- MODAL PRODUCTO ---------------- */
+        window.openProductModal = function (productId) {
+            const modal = document.getElementById('product-modal');
+            const titleEl = document.getElementById('product-modal-title');
+            const nameEl = document.getElementById('product-modal-name');
+            const descEl = document.getElementById('product-modal-desc');
+            const priceEl = document.getElementById('product-modal-price');
+            const iconEl = document.getElementById('product-modal-icon');
+            const delBtn = document.getElementById('product-modal-delete');
+
+            if (productId) {
+                const p = menuItems.find(m => m.id === productId);
+                if (!p) return;
+                editingProductId = productId;
+                editingProductRecipe = Array.isArray(p.recipe) ? p.recipe.map(r => ({...r})) : [];
+                titleEl.textContent = 'Editar Producto';
+                nameEl.value = p.name;
+                descEl.value = p.desc || '';
+                priceEl.value = p.price;
+                iconEl.value = p.icon;
+                delBtn.classList.remove('hidden');
+            } else {
+                editingProductId = null;
+                editingProductRecipe = [];
+                titleEl.textContent = 'Nuevo Producto';
+                nameEl.value = '';
+                descEl.value = '';
+                priceEl.value = 10000;
+                iconEl.value = 'fa-solid fa-hotdog';
+                delBtn.classList.add('hidden');
+            }
+            renderProductRecipe();
+            modal.classList.remove('hidden');
+            setTimeout(() => nameEl.focus(), 150);
+        };
+
+        window.closeProductModal = function () {
+            document.getElementById('product-modal').classList.add('hidden');
+            editingProductId = null;
+            editingProductRecipe = [];
+        };
+
+        function renderProductRecipe() {
+            const c = document.getElementById('product-modal-recipe');
+            if (inventory.length === 0) {
+                c.innerHTML = `<p class="text-stone-400 text-xs py-2 text-center">No hay ingredientes creados aún. Ve a "Inventario" y crea al menos uno.</p>`;
+                return;
+            }
+            c.innerHTML = inventory.map(ing => {
+                const found = editingProductRecipe.find(r => r.ingredientId === ing.id);
+                const qty = found ? found.qty : 0;
+                return `
+                <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-stone-200">
+                    <span class="text-xs font-semibold text-stone-700 truncate">${ing.name}</span>
+                    <div class="flex items-center gap-1">
+                        <input type="number" min="0" value="${qty}" data-ingid="${ing.id}"
+                            oninput="updateRecipeQty(${ing.id}, this.value)"
+                            class="w-16 text-center text-xs font-bold bg-stone-50 border border-stone-200 rounded-lg py-1 focus:outline-none focus:border-rose-600">
+                        <span class="text-[10px] text-stone-400 w-8">${ing.unit}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        window.updateRecipeQty = function (ingredientId, value) {
+            const qty = parseInt(value) || 0;
+            const idx = editingProductRecipe.findIndex(r => r.ingredientId === ingredientId);
+            if (qty <= 0) {
+                if (idx >= 0) editingProductRecipe.splice(idx, 1);
+            } else {
+                if (idx >= 0) editingProductRecipe[idx].qty = qty;
+                else editingProductRecipe.push({ ingredientId, qty });
+            }
+        };
+
+        window.saveProduct = async function () {
+            if (!firebaseReady) return;
+            const name = document.getElementById('product-modal-name').value.trim().toUpperCase();
+            const desc = document.getElementById('product-modal-desc').value.trim();
+            const price = parseInt(document.getElementById('product-modal-price').value) || 0;
+            const icon = document.getElementById('product-modal-icon').value;
+            if (!name) { showAlert("Escribe un nombre."); return; }
+            if (price <= 0) { showAlert("Ingresa un precio válido."); return; }
+
+            try {
+                if (editingProductId) {
+                    const p = menuItems.find(m => m.id === editingProductId);
+                    if (!p) return;
+                    await updateDoc(doc(db, 'menu', p.firebaseId), {
+                        name, desc, price, icon, recipe: editingProductRecipe
+                    });
+                } else {
+                    const maxId = menuItems.reduce((m, i) => Math.max(m, i.id || 0), 0);
+                    const newId = maxId + 1;
+                    await setDoc(doc(db, 'menu', `item_${newId}_${Date.now()}`), {
+                        id: newId, name, desc, price, icon, recipe: editingProductRecipe
+                    });
+                }
+                closeProductModal();
+                showAlert("Producto guardado.", "Listo");
+            } catch (e) {
+                console.error("Error guardando producto:", e);
+                showAlert("No se pudo guardar.", "Error");
+            }
+        };
+
+        window.deleteProductFromModal = async function () {
+            if (!editingProductId) return;
+            if (!confirm("¿Eliminar este producto del menú?")) return;
+            const p = menuItems.find(m => m.id === editingProductId);
+            if (!p) return;
+            try {
+                await deleteDoc(doc(db, 'menu', p.firebaseId));
+                closeProductModal();
+                showAlert("Producto eliminado.", "Listo");
+            } catch (e) { console.error(e); showAlert("No se pudo eliminar.", "Error"); }
+        };
 
         /* ---------------- CALENDARIO ---------------- */
         window.changeCalendarMonth = function (delta) {
@@ -740,7 +1188,6 @@
             if (calendarMonth > 11) { calendarMonth = 0;  calendarYear++; }
             renderSalesCalendar();
         };
-
         window.selectSaleDate = function (key) {
             selectedSaleDate = (selectedSaleDate === key) ? null : key;
             renderSalesCalendar();
@@ -748,7 +1195,6 @@
 
         function renderSalesCalendar() {
             document.getElementById('calendar-month-label').textContent = `${MONTHS_ES[calendarMonth]} ${calendarYear}`;
-
             const grid = document.getElementById('calendar-grid');
             const firstDay = new Date(calendarYear, calendarMonth, 1);
             const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
@@ -766,31 +1212,23 @@
 
             const today = todayKey();
             let html = '';
-
-            for (let i = 0; i < startWeekday; i++) {
-                html += `<div class="aspect-square"></div>`;
-            }
-
+            for (let i = 0; i < startWeekday; i++) html += `<div class="aspect-square"></div>`;
             for (let day = 1; day <= daysInMonth; day++) {
                 const key = `${calendarYear}-${String(calendarMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
                 const total = totalsByDay[day] || 0;
                 const hasSales = total > 0;
                 const isSelected = selectedSaleDate === key;
                 const isToday = key === today;
-
                 let cls = 'aspect-square rounded-lg flex flex-col items-center justify-center transition border text-[11px] relative ';
                 if (isSelected) cls += 'bg-rose-600 text-white border-rose-600 font-bold ';
                 else if (hasSales) cls += 'bg-emerald-50 text-emerald-800 border-emerald-200 font-bold ';
                 else cls += 'text-stone-700 border-stone-100 hover:bg-stone-50 ';
-
                 if (isToday && !isSelected) cls += 'ring-2 ring-rose-400 ';
-
                 html += `<button onclick="selectSaleDate('${key}')" class="${cls}">
                     <span>${day}</span>
                     ${hasSales ? `<span class="text-[7px] leading-none ${isSelected?'opacity-90':''}">$${fmtShort(total)}</span>` : ''}
                 </button>`;
             }
-
             grid.innerHTML = html;
 
             const summary = document.getElementById('calendar-day-summary');
@@ -804,7 +1242,6 @@
 
             const dayOrders = ordersOfDate(selectedSaleDate).sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
             const dayTotal = dayOrders.reduce((s,o) => s + (o.total || 0), 0);
-
             summary.classList.remove('hidden');
             const dParts = selectedSaleDate.split('-');
             document.getElementById('calendar-day-summary-text').textContent =
@@ -846,7 +1283,8 @@
                 time: order.time || '',
                 timestamp: order.timestamp || Date.now(),
                 status: order.status || 'pendiente',
-                items: (order.items || []).map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty }))
+                items: (order.items || []).map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty })),
+                originalItems: (order.items || []).map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty }))
             };
             document.getElementById('edit-sale-id').textContent = `#${editingSale.id}`;
             document.getElementById('edit-sale-time').textContent = `Pedido a las ${editingSale.time}`;
@@ -854,12 +1292,10 @@
             renderEditSaleItems();
             document.getElementById('edit-sale-modal').classList.remove('hidden');
         };
-
         window.closeEditSale = function () {
             document.getElementById('edit-sale-modal').classList.add('hidden');
             editingSale = null;
         };
-
         function renderEditSaleItems() {
             const container = document.getElementById('edit-sale-items');
             if (!editingSale || editingSale.items.length === 0) {
@@ -892,7 +1328,6 @@
             const total = editingSale ? editingSale.items.reduce((s,i) => s + (i.price * i.qty), 0) : 0;
             document.getElementById('edit-sale-total').textContent = `$${total.toLocaleString()}`;
         }
-
         window.updateSaleItem = function (idx, field, value) {
             if (!editingSale) return;
             const it = editingSale.items[idx];
@@ -903,7 +1338,6 @@
             const total = editingSale.items.reduce((s,i) => s + (i.price * i.qty), 0);
             document.getElementById('edit-sale-total').textContent = `$${total.toLocaleString()}`;
         };
-
         window.adjustSaleQty = function (idx, delta) {
             if (!editingSale) return;
             const it = editingSale.items[idx];
@@ -911,13 +1345,11 @@
             it.qty = Math.max(1, (it.qty || 1) + delta);
             renderEditSaleItems();
         };
-
         window.removeSaleItem = function (idx) {
             if (!editingSale) return;
             editingSale.items.splice(idx, 1);
             renderEditSaleItems();
         };
-
         window.addSaleItem = function () {
             if (!editingSale) return;
             editingSale.items.push({ id: 0, name: 'Producto', price: 0, qty: 1 });
@@ -927,7 +1359,6 @@
                 if (inputs.length) inputs[inputs.length - 1].focus();
             }, 100);
         };
-
         window.saveSaleEdit = async function () {
             if (!editingSale || !firebaseReady) return;
             const customer = document.getElementById('edit-sale-customer').value.trim() || 'Cliente';
@@ -935,79 +1366,35 @@
             const items = editingSale.items.map(i => ({ id: i.id || 0, name: i.name || 'Producto', price: parseInt(i.price) || 0, qty: parseInt(i.qty) || 1 }));
             const total = items.reduce((s,i) => s + (i.price * i.qty), 0);
             try {
+                // Revertir inventario de los items originales (sumar), luego descontar los nuevos
+                await applyRecipe(editingSale.originalItems, +1);
+                await applyRecipe(items, -1);
                 await updateDoc(doc(db, 'orders', editingSale.firebaseId), { customer, items, total });
                 closeEditSale();
-                showAlert("Venta actualizada correctamente.", "Guardado");
+                showAlert("Venta actualizada e inventario ajustado.", "Guardado");
             } catch (e) {
                 console.error("Error saving sale:", e);
                 showAlert("No se pudo guardar la venta.", "Error");
             }
         };
-
         window.deleteSale = async function () {
             if (!editingSale || !firebaseReady) return;
-            if (!confirm(`¿Eliminar la venta #${editingSale.id}? Esta acción no se puede deshacer.`)) return;
+            if (!confirm(`¿Eliminar la venta #${editingSale.id}? Se devolverán los ingredientes al inventario.`)) return;
             try {
+                await applyRecipe(editingSale.originalItems, +1); // devolver al inventario
                 await deleteDoc(doc(db, 'orders', editingSale.firebaseId));
                 closeEditSale();
-                showAlert("Venta eliminada.", "Listo");
+                showAlert("Venta eliminada e inventario devuelto.", "Listo");
             } catch (e) {
                 console.error("Error deleting sale:", e);
                 showAlert("No se pudo eliminar la venta.", "Error");
             }
         };
 
-        /* ---------------- INVENTARIO ---------------- */
-        window.restock = async function (firebaseId, currentStock) {
-            if (!firebaseReady) return;
-            try { await updateDoc(doc(db, 'inventory', firebaseId), { stock: currentStock + 20 }); }
-            catch (e) { console.error(e); }
-        };
-
-        /* ---------------- EDITAR PRECIO MENÚ ---------------- */
-        window.openPriceModal = function (id) {
-            const item = menuItems.find(m => m.id === id);
-            if (!item) return;
-            editingItemId = id;
-            document.getElementById('price-modal-name').textContent = item.name;
-            const input = document.getElementById('price-modal-input');
-            input.value = item.price;
-            updatePricePreview();
-            input.oninput = updatePricePreview;
-            document.getElementById('price-modal').classList.remove('hidden');
-            setTimeout(() => input.focus(), 150);
-        };
-
-        function updatePricePreview() {
-            const val = parseInt(document.getElementById('price-modal-input').value) || 0;
-            document.getElementById('price-modal-preview').textContent = `$${val.toLocaleString()}`;
-        }
-
-        window.closePriceModal = function () {
-            document.getElementById('price-modal').classList.add('hidden');
-            editingItemId = null;
-        };
-
-        window.savePrice = async function () {
-            if (editingItemId == null) return;
-            const newPrice = parseInt(document.getElementById('price-modal-input').value);
-            if (isNaN(newPrice) || newPrice <= 0) { showAlert("Ingresa un precio válido."); return; }
-            const item = menuItems.find(m => m.id === editingItemId);
-            if (!item) return;
-            try {
-                await updateDoc(doc(db, 'menu', item.firebaseId), { price: newPrice });
-                closePriceModal();
-                showAlert(`Precio de ${item.name} actualizado a $${newPrice.toLocaleString()}.`, "Actualizado");
-            } catch (e) {
-                console.error("Error updating price:", e);
-                showAlert("No se pudo guardar el precio.", "Error");
-            }
-        };
-
         /* ---------------- RESET ---------------- */
         window.resetData = async function () {
             if (!firebaseReady) return;
-            if (!confirm("¿Borrar todos los pedidos? (Los precios e inventario NO se tocan)")) return;
+            if (!confirm("¿Borrar TODOS los pedidos? (El menú, inventario y precios NO se tocan)")) return;
             try {
                 for (const o of orders) await deleteDoc(doc(db, 'orders', o.firebaseId));
                 showAlert("Pedidos borrados con éxito.", "Éxito");
